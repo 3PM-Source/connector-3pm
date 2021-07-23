@@ -1,0 +1,17 @@
+#splash3pm {
+    width:100%;
+    position:relative;
+    height:200px;
+    background: orange;
+    box-shadow: #eeeeee solid 2px;
+    border-radius: 0px 0px 400px 400px;
+}
+
+#main {
+    width: 100%;
+    min-height: 800px;
+    position:absolute;
+    left: 0px;
+    overflow-wrap:normal;
+    text-align:center;
+}
