@@ -1,0 +1,11 @@
+body {
+    font-family: "Verdana";
+}
+
+input {
+    display:block;
+    margin: 35px auto 0px auto;
+    padding: 5px;
+    font-size: 12pt;
+    width: 300px;
+}
