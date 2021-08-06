@@ -52,7 +52,7 @@ class Authenticator {
     }
 
     async getUserById(userEmail, id) {
-        if(!userEmail && !id || (userEmail && !userEmail.includes("@")) || (userEmail && typeof userEmail !== "string") || (id && typeof id !== "string")) {
+        if((userEmail == "" && id == "") || (!userEmail && !id) || (userEmail && !userEmail.includes("@") || (userEmail && typeof userEmail !== "string") || (id && typeof id !== "string"))) {
             throw "user email OR user id must be provided";
         }
         let client = await this.pool.connect();
@@ -76,10 +76,21 @@ class Authenticator {
         }
     }
 
-    async getUsers() {
+    async getUsers(role) {
+        const _role = role && typeof role === "string" ? role.toUpperCase() : "STANDARD";
+        const query = function(theRole) { 
+            switch(theRole) {
+                case "STANDARD":
+                    return `SELECT * FROM users WHERE role = '${theRole}'`;
+                case "ADMINISTRATOR":
+                    return `SELECT * FROM users`;
+                default:
+                    throw new Error("Not Allowed!");
+            }
+        }(_role);
         let client = await this.pool.connect();
         try {
-            const users = (await client.query("SELECT * FROM users")).rows;
+            const users = (await client.query(query)).rows;
             if(Array.isArray(users) && users.length > 0) {
                 return users;
             } else {
@@ -96,13 +107,13 @@ class Authenticator {
         if(!name || typeof name !== "string" || !role || typeof role !== "string" || !password || typeof password !== "string" || !email || !email.includes("@")) {
             throw "Invalid arguments provided";
         }
-        let client = this.pool.connect();
+        let client = await this.pool.connect();
         try {
             const created = moment().tz("Pacific/Auckland").format("x");
             const passwordHash = await this.hashPassword(email, created, password);
             const createdUser = (await client.query(`INSERT INTO users (id, name, role, password, email, created) VALUES (generate_id('users'), '${name}', '${role}', '${passwordHash}', '${email}', '${created}')`));
                 if(typeof createdUser === "object" && createdUser["rowCount"] === 1) {
-                    return "User created";
+                    return "User Created";
                 } else {
                     return "Could not create user";
                 }
@@ -114,7 +125,7 @@ class Authenticator {
     }
 
     async deleteUser(userEmail, id) {
-        if(!userEmail && !id || (userEmail && !userEmail.includes("@")) || (userEmail && typeof userEmail !== "string") || (id && typeof id !== "string")) {
+        if((userEmail === "" && id === "") || (!userEmail && !id) || (userEmail && !userEmail.includes("@") || (userEmail && typeof userEmail !== "string") || (id && typeof id !== "string"))) {
             throw "user email OR user id must be provided";
         }
         let client = await this.pool.connect();
@@ -272,14 +283,33 @@ class Authenticator {
         }
     }
 
-    async updateUserToken(newToken, userId) {
-        if(!newToken || typeof newToken !== "string" || !userId || typeof userId !== "string") {
+    async getUserTokens(ownerId) {
+        let query = ownerId ? `SELECT * FROM user_tokens WHERE owner = '${ownerId}'` : `SELECT * FROM user_tokens`;
+        let client = await this.pool.connect();
+            try {
+                const Result = await client.query(query);
+                client.release();
+                    if(Result.hasOwnProperty("rowCount") && Result["rowCount"] > 0 && Result.hasOwnProperty("rows")) {
+                        return Result["rows"];
+                    } else {
+                        return [];
+                    }
+                //console.log("The Query:", "INSERT INTO user_tokens (id, owner, api_token) VALUES (generate_id(\"user_tokens\")," +  userId + "," + token + ")");
+                //return "INSERT INTO user_tokens (id, owner, api_token) VALUES (generate_id(\"user_tokens\"), '" +  userId + "','" + token + "')";
+            } catch (error) {
+                client.release();
+                throw new Error(error);
+            }
+    }
+
+    async updateUserToken(newToken, keyId) {
+        if(!newToken || typeof newToken !== "string" || !keyId || typeof keyId !== "string") {
             //console.log("Token", newToken)
-            throw new Error("token or userId data is missing or not invalid");
+            throw new Error("token or keyId data is missing or not invalid");
         }
         let client = await this.pool.connect();
             try {
-                const Result = await client.query(`UPDATE user_tokens SET api_token = '${newToken}' WHERE owner = '${userId}'`);
+                const Result = await client.query(`UPDATE user_tokens SET api_token = '${newToken}' WHERE id = '${keyId}'`);
                 client.release();
                     if(Result.hasOwnProperty("rowCount") && Result["rowCount"] === 1) {
                         return "User token updated";
@@ -292,13 +322,13 @@ class Authenticator {
             }
     }
 
-    async deleteUserToken(existingToken) {
+    async deleteUserToken(keyId) {
         if(!existingToken || typeof existingToken !== "string" || !userId || typeof userId !== "string") {
             throw "Invalid token specified for deletion";
         }
         let client = await this.pool.connect();
             try {
-                const Result = await client.query(`DELETE FROM user_tokens WHERE api_token = '${existingToken}'`);
+                const Result = await client.query(`DELETE FROM user_tokens WHERE id = '${keyId}'`);
                 client.release();
                     if(Result.hasOwnProperty("rowCount") && Result["rowCount"] === 1) {
                         return "User token deleted";
@@ -468,6 +498,222 @@ class Authenticator {
         newStr = newStr.split("=").join("").split("+").join("-").split("/").join("_");
         return newStr;
     }
+
+    /**
+     * 
+     * @param {String} operation CREATE, READ, UPDATE OR DELETE
+     * @param {String} operand USERS, KEYS
+     * @param {Object} userInfo Details about the client user executing the action, id, userName, userEmail, role, password
+     * @param {Object} data Should be a plain JavaScript Object with properties depending on the operand:
+     * If operand is USER then
+     * userName
+     * userEmail
+     * role // STANDARD or ADMINISTRATOR
+     * password
+     * userKey
+     * 
+     * If the operand is KEYS then the data should contain the userId for whom the key is being created for
+     * userId
+     * keyId
+     */
+    async executeAction(operation, operand, userInfo, data) {
+        const _operation = typeof operation === "string" ? operation.toUpperCase() : undefined;
+        const _operand = typeof operand === "string" ? operand.toUpperCase() : undefined;
+        const _userInfo = typeof userInfo === "object" ? userInfo : undefined;
+        const _data = typeof data === "object" ? data : undefined;
+            if(!_operation || !_operand || !_userInfo || !_data) {
+                throw new Error("Required arguments missing");
+            }
+        let res;
+        switch(_operation) {
+            case "CREATE":
+                switch(_operand) {
+                    case "USER":
+                        switch(_userInfo["role"]) {
+                            case "STANDARD":
+                                throw new Error("You do not have the required permission to create users, please contact your administrator");
+
+                            case "ADMINISTRATOR":
+                                res = await this.createUser(_data["userName"], _data["role"], _data["password"], _data["userEmail"]);
+                                    if(res === "User Created") {
+                                        const user = await this.getUserById(_data["userEmail"]);
+                                        return {
+                                            id: user["id"],
+                                            name: user["name"],
+                                            role: user["role"],
+                                            email: user["email"]
+                                        };
+                                    } else {
+                                        throw new Error("Failed to create user");
+                                    }
+                        }
+                    break;
+
+                    case "KEYS":
+                        switch(_userInfo["role"]) {
+                            case "STANDARD":
+                                res = await this.saveUserToken(this.generateBearerToken(256), _userInfo["id"]);
+                                    if(res === "User token saved") {
+                                        const keys = await this.getUserTokens(_userInfo["id"]);
+                                        return keys;
+                                    } else {
+                                        throw new Error("Failed to save user key");
+                                    }
+                            case "ADMINISTRATOR":
+                                const res = await this.saveUserToken(this.generateBearerToken(256), _data["userId"]);
+                                    if(res === "User token saved") {
+                                        const keys = await this.getUserTokens();
+                                        return keys;
+                                    } else {
+                                        throw new Error("Failed to retrieve keys");
+                                    }
+                        }
+                    break;
+
+                    default:
+                        throw new Error(`Unknown request: ${_operation} on ${_operand}`);
+                }
+            break;
+
+            case "READ":
+                switch(_operand) {
+                    case "USER":
+                        switch(_userInfo["role"]) {
+                            case "STANDARD":
+                                res = await this.getUsers("STANDARD");
+                                return users;
+
+                            case "ADMINISTRATOR":
+                                res = await this.getUsers("ADMINISTRATOR");
+                                return res;
+                        }
+                    break;
+
+                    case "KEYS":
+                        switch(_userInfo["role"]) {
+                            case "STANDARD":
+                                res = await this.getUserTokens(_userInfo["id"]);
+                                return users;
+
+                            case "ADMINISTRATOR":
+                                res = await this.getUserTokens();
+                                return res;
+                        }
+                    break;
+
+                    default:
+                        throw new Error(`Unknown request: ${_operation} on ${_operand}`);
+                }
+            break;
+
+            case "UPDATE":
+                switch(_operand) {
+                    case "USER":
+                        switch(_userInfo["role"]) {
+                            case "STANDARD":
+                                const updateObj = function(data) {
+                                    let tempObj = {};
+                                        if(data.hasOwnProperty("userName")) {
+                                            tempObj["name"] = data["userName"];
+                                        }
+                                        if(data.hasOwnProperty("role")) {
+                                            tempObj["role"] = data["role"];
+                                        }
+                                        if(data.hasOwnProperty("password")) {
+                                            tempObj["password"] = data["password"];
+                                        }
+                                        if(data.hasOwnProperty("userEmail")) {
+                                            tempObj["email"] = data["userEmail"];
+                                        }
+                                    return tempObj;
+                                }(_data);
+                                res = await this.updateUser(updateObj, _userInfo["userEmail"]);
+                                    if(res === "Updated specified user's specified fields") {
+                                        const updated = await this.getUserById("", _userInfo["id"]);
+                                        return updated;
+                                    } else {
+                                        throw new Error("Failed to update user");
+                                    }
+
+                            case "ADMINISTRATOR":
+                                const updateObj = function(data) {
+                                    let tempObj = {};
+                                        if(data.hasOwnProperty("userName")) {
+                                            tempObj["name"] = data["userName"];
+                                        }
+                                        if(data.hasOwnProperty("role")) {
+                                            tempObj["role"] = data["role"];
+                                        }
+                                        if(data.hasOwnProperty("password")) {
+                                            tempObj["password"] = data["password"];
+                                        }
+                                        if(data.hasOwnProperty("userEmail")) {
+                                            tempObj["email"] = data["userEmail"];
+                                        }
+                                    return tempObj;
+                                }(_data);
+                                res = await this.updateUser(updateObj, _data["userEmail"]);
+                                    if(res === "Updated specified user's specified fields") {
+                                        const updated = await this.getUserById("", _data["userId"]);
+                                        return updated;
+                                    } else {
+                                        throw new Error("Failed to update user");
+                                    }
+                        }
+                    break;
+
+                    case "KEYS":
+                        switch(_userInfo["role"]) {
+                            case "STANDARD":
+                                res = await this.updateUserToken(this.generateBearerToken(256), _data["keyId"]);
+                                    if(res === "User token updated") {
+                                        const keys = await this.getUserTokens(_userInfo["id"]);
+                                        return keys;
+                                    } else {
+                                        throw new Error("Failed to update user key");
+                                    }
+                            case "ADMINISTRATOR":
+                                const res = await this.updateUserToken(this.generateBearerToken(256), _data["keyId"]);
+                                    if(res === "User token updated") {
+                                        const keys = await this.getUserTokens();
+                                        return keys;
+                                    } else {
+                                        throw new Error("Failed to update user key");
+                                    }
+                        }
+                    break;
+
+                    default:
+                        throw new Error(`Unknown request: ${_operation} on ${_operand}`);
+                }
+            break;
+
+            case "DELETE":
+                switch(_operand) {
+                    case "USER":
+                        switch(_userInfo["role"]) {
+                            case "STANDARD":
+                                throw new Error("You do not have permission to delete users. Please contact your administrator.");
+
+                            case "ADMINISTRATOR":
+                                res = await this.deleteUser(_data["userEmail"]);
+                                return res;
+                        }
+                    break;
+
+                    case "KEYS":
+                        res = await this.deleteUserToken(_data["keyId"]);
+                        return res;
+
+                    default:
+                        throw new Error(`Unknown request: ${_operation} on ${_operand}`);
+                }
+            break;
+
+            default:
+                throw new Error("Unrecognized operation!");
+        }
+    }
 }
 
 async function test() {
@@ -515,8 +761,8 @@ async function test() {
         // const users = (await auth.pool.query("SELECT * FROM users")).rows;
         // console.log(users);
         //console.log("All users", await auth.getUsers());
-        //console.log("Delete Clark Kent", await auth.deleteUser("", "04fe61ad431f9fe13d081de1f7ffaa02"));
-        //console.log("Create Clark Kent", await auth.createUser("Clark Kent", "ADMINISTRATOR", "Trespasser98", "clark.john@dailyplanet.net"));
+        //console.log("Delete Star Wars", await auth.deleteUser("start.wars@universe.net", ""));
+        //console.log("Create Star Wars", await auth.createUser("Star Wars", "ADMINISTRATOR", "Trespasser99", "start.wars@universe.net"));
         //console.log("Query Asjad", await auth.verifyUser("clark.john@dailyplanet.net", "Trespasser98"));
         //console.log("Updating Clark Kent's email", await auth.updateUser({ email: "clark.kent@3pm.nz" }, "clark.john@dailyplanet.net" ));
         //console.log("Updating Clark Kent's email", await auth.updateUser({ name: "CK" }, "clark.kent@3pm.nz" ));
@@ -539,10 +785,11 @@ async function test() {
         //const { access_token } = (await auth.getOAuth2Token()).oauth_token;
         //console.log("access_token", access_token);
         // console.log(await auth.getUsers());
-        // console.log(await auth.getUserById("asjad.amin@3pm.nz"));
+        //console.log(await auth.getUserById("asjad.amin@3pm.nz"));
         //console.log(await auth.getOAuth2Token());
         //console.log(await auth.verifyUser("asjad.amin@3pm.nz", "Trespasser97"));
-        //await auth.pool.end();
+        console.log(await auth.getUserTokens());
+        await auth.pool.end();
     } catch (error) {
         console.log(error);
     }

@@ -18,8 +18,5 @@ class Users extends Component {
             </table>
         );
     }
-    buildTableHeader = (headers) => {
-        const 
-    }
 }
 export default Users;
