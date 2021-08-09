@@ -36,10 +36,10 @@ body {
  ```
 
 3) Use this secret/token to sign a JWT using hmac-sha256 algorithm like so:
-	a. base64Url encode the header
-	b. base64Url encode the body
+	a. base64Url encode the header(JSON formatted)
+	b. base64Url encode the body(JSON formatted)
 	c. sign the concat of header and body using a hmac-sha256 based hash, using the secret that you got when you registered, like so: 
-	***createSignature( "sha256", secret , your_secret_your_base64Urlencoded_header.your_base64Urlencoded_body )***
+	```createSignature( "sha256", secret , your_secret_your_base64Urlencoded_header.your_base64Urlencoded_body )```
 	d. base64Url encode the signed concat you generated in c and append it to base64Url_encoded_header.base64Url_encoded_body
 	e. In an api call, include the Authorization header and use "Bearer your_signed_jwt_token" that you generated in d
 

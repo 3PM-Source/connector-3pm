@@ -611,7 +611,7 @@ class Authenticator {
                     case "USER":
                         switch(_userInfo["role"]) {
                             case "STANDARD":
-                                const updateObj = function(data) {
+                                let updateObj = function(data) {
                                     let tempObj = {};
                                         if(data.hasOwnProperty("userName")) {
                                             tempObj["name"] = data["userName"];
@@ -636,7 +636,7 @@ class Authenticator {
                                     }
 
                             case "ADMINISTRATOR":
-                                const updateObj = function(data) {
+                                updateObj = function(data) {
                                     let tempObj = {};
                                         if(data.hasOwnProperty("userName")) {
                                             tempObj["name"] = data["userName"];
@@ -734,6 +734,7 @@ async function test() {
             password = "thisIs3PM@2021",
             port = 5432;
         const auth = new Authenticator(user, host, database, password, port);
+        //console.log(auth.createSignedJWT("myob_3pm", "Clark Kent", "ADMINISTRATOR", "In00KTwvWzA1JC00Zls5O2AzPTAkOSsuPy8oI1xcPSg8OWImXXw8QDlkNyMjKmYoPDg0KSklM2AwKC5hIjojJjxeL2A5PVxeXnw3NDw8ZmYhZi80KTEpIj0tYlw9NHx8JTIrMyM5Zl8kPC5mOCIofmI8YXw6Mjp7IjdmKWYwJSJhJV4jLHsrYTQ8YipbMWJfLVtiOyQlOlwoez8mLCVbPTkkLkAlMy8+KlwkPC0hKH41JC5gLF8/YDUjNzt9IVshZCQmOzA6OztmXTEsZV8uYytAXT9bZC0rQH49N10/Pl8oMGIqQGNAOjQpOTwvIj9dK1wwPmQpIi0iZF0kPiQvOQ=="));
         /*const signedToken = auth.createSignedJWT("myob-3pm", "AJ", "ADMINISTRATOR", "In00KTwvWzA1JC00Zls5O2AzPTAkOSsuPy8oI1xcPSg8OWImXXw8QDlkNyMjKmYoPDg0KSklM2AwKC5hIjojJjxeL2A5PVxeXnw3NDw8ZmYhZi80KTEpIj0tYlw9NHx8JTIrMyM5Zl8kPC5mOCIofmI8YXw6Mjp7IjdmKWYwJSJhJV4jLHsrYTQ8YipbMWJfLVtiOyQlOlwoez8mLCVbPTkkLkAlMy8+KlwkPC0hKH41JC5gLF8/YDUjNzt9IVshZCQmOzA6OztmXTEsZV8uYytAXT9bZC0rQH49N10/Pl8oMGIqQGNAOjQpOTwvIj9dK1wwPmQpIi0iZF0kPiQvOQ==");
         console.log("Signed Token", signedToken);
         console.log("Signature Verified", auth.jwtIsValid(`Bearer ${signedToken}`, "In00KTwvWzA1JC00Zls5O2AzPTAkOSsuPy8oI1xcPSg8OWImXXw8QDlkNyMjKmYoPDg0KSklM2AwKC5hIjojJjxeL2A5PVxeXnw3NDw8ZmYhZi80KTEpIj0tYlw9NHx8JTIrMyM5Zl8kPC5mOCIofmI8YXw6Mjp7IjdmKWYwJSJhJV4jLHsrYTQ8YipbMWJfLVtiOyQlOlwoez8mLCVbPTkkLkAlMy8+KlwkPC0hKH41JC5gLF8/YDUjNzt9IVshZCQmOzA6OztmXTEsZV8uYytAXT9bZC0rQH49N10/Pl8oMGIqQGNAOjQpOTwvIj9dK1wwPmQpIi0iZF0kPiQvOQ=="));*/
@@ -788,7 +789,7 @@ async function test() {
         //console.log(await auth.getUserById("asjad.amin@3pm.nz"));
         //console.log(await auth.getOAuth2Token());
         //console.log(await auth.verifyUser("asjad.amin@3pm.nz", "Trespasser97"));
-        console.log(await auth.getUserTokens());
+        //console.log(await auth.getUserTokens());
         await auth.pool.end();
     } catch (error) {
         console.log(error);
