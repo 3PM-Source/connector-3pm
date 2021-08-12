@@ -12,9 +12,9 @@ app.use(express.json());
 // CORS
 app.use(function(req, res, next) {
     req.header("Access-Control-Allow-Origin", "*");
-    req.header("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization");
-    res.header("Access-Control-Allow-Origin", "3pm.nz");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With");
+    req.header("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, X-Requested-With");
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, X-Requested-With");
     next();
 });
 // Start the server

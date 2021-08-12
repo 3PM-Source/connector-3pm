@@ -268,23 +268,23 @@ class Authenticator {
     async saveUserToken(token, userId) {
         let client = await this.pool.connect();
         try {
-            const Result = await client.query("INSERT INTO user_tokens (id, owner, api_token) VALUES (generate_id(\'user_tokens\'), '" +  userId + "','" + token + "')");
+            const Result = await client.query("INSERT INTO user_tokens (id, owner, secret) VALUES (generate_id(\'user_tokens\'), '" +  userId + "','" + token + "')");
             client.release();
                 if(Result.hasOwnProperty("rowCount") && Result["rowCount"] === 1) {
                     return "User token saved";
                 } else {
                     return "Could not save user token";
                 }
-            //console.log("The Query:", "INSERT INTO user_tokens (id, owner, api_token) VALUES (generate_id(\"user_tokens\")," +  userId + "," + token + ")");
-            //return "INSERT INTO user_tokens (id, owner, api_token) VALUES (generate_id(\"user_tokens\"), '" +  userId + "','" + token + "')";
+            //console.log("The Query:", "INSERT INTO user_tokens (id, owner, secret) VALUES (generate_id(\"user_tokens\")," +  userId + "," + token + ")");
+            //return "INSERT INTO user_tokens (id, owner, secret) VALUES (generate_id(\"user_tokens\"), '" +  userId + "','" + token + "')";
         } catch (error) {
             client.release();
             throw new Error(error);
         }
     }
 
-    async getUserTokens(ownerId) {
-        let query = ownerId ? `SELECT * FROM user_tokens WHERE owner = '${ownerId}'` : `SELECT * FROM user_tokens`;
+    async getUserTokens(ownerId, tokenId) {
+        let query = ownerId ? `SELECT * FROM user_tokens WHERE owner = '${ownerId}'` : tokenId ? `SELECT * FROM user_tokens WHERE id = '${tokenId}'` : `SELECT * FROM user_tokens`;
         let client = await this.pool.connect();
             try {
                 const Result = await client.query(query);
@@ -294,8 +294,8 @@ class Authenticator {
                     } else {
                         return [];
                     }
-                //console.log("The Query:", "INSERT INTO user_tokens (id, owner, api_token) VALUES (generate_id(\"user_tokens\")," +  userId + "," + token + ")");
-                //return "INSERT INTO user_tokens (id, owner, api_token) VALUES (generate_id(\"user_tokens\"), '" +  userId + "','" + token + "')";
+                //console.log("The Query:", "INSERT INTO user_tokens (id, owner, secret) VALUES (generate_id(\"user_tokens\")," +  userId + "," + token + ")");
+                //return "INSERT INTO user_tokens (id, owner, secret) VALUES (generate_id(\"user_tokens\"), '" +  userId + "','" + token + "')";
             } catch (error) {
                 client.release();
                 throw new Error(error);
@@ -309,7 +309,7 @@ class Authenticator {
         }
         let client = await this.pool.connect();
             try {
-                const Result = await client.query(`UPDATE user_tokens SET api_token = '${newToken}' WHERE id = '${keyId}'`);
+                const Result = await client.query(`UPDATE user_tokens SET secret = '${newToken}' WHERE id = '${keyId}'`);
                 client.release();
                     if(Result.hasOwnProperty("rowCount") && Result["rowCount"] === 1) {
                         return "User token updated";
@@ -499,6 +499,26 @@ class Authenticator {
         return newStr;
     }
 
+    async verifySignature(tokenId, signature, method, url, timestamp) {
+        // First get the tokenId
+        const tokenRecords = await this.getUserTokens("", tokenId);
+        console.log(tokenRecords);
+            if(Array.isArray(tokenRecords) && tokenRecords.length > 0) {
+                const signatureStr = this.createFullSignature(method, url, timestamp, tokenId, tokenRecords[0]["secret"], tokenRecords[0]["owner"]);
+                console.log("Recreated signature", signatureStr);
+                console.log("Original signature", signature);
+                    if(signatureStr === signature) {
+                        return true;
+                    }
+            }
+        return false;
+    }
+
+    createFullSignature(method, url, timestamp, tokenId, secret, ownerId) {
+        //return Buffer.from(this.createSignature("sha256", test.secret, this.base64UrlEncode(JSON.stringify(test)))).toString("base64");
+        return Buffer.from(this.createSignature("sha256", secret, `${method}&${url}&${timestamp}&${secret}&${ownerId}&${tokenId}`)).toString("base64");
+    }
+
     /**
      * 
      * @param {String} operation CREATE, READ, UPDATE OR DELETE
@@ -514,6 +534,9 @@ class Authenticator {
      * 
      * If the operand is KEYS then the data should contain the userId for whom the key is being created for
      * userId
+     * userName
+     * userRole
+     * appName
      * keyId
      */
     async executeAction(operation, operand, userInfo, data) {
@@ -734,6 +757,13 @@ async function test() {
             password = "thisIs3PM@2021",
             port = 5432;
         const auth = new Authenticator(user, host, database, password, port);
+        //console.log(await auth.getUserTokens("04fe61ad431f9fe13d081de1f7ffaa02"));
+        const timestamp = moment().tz("Pacific/Auckland").format("x");
+        const encodedURI = encodeURIComponent("https://www.3pm.nz/api/myob/accounts");
+        console.log("Encoded URL", encodedURI);
+        console.log(timestamp);
+        console.log(await auth.verifySignature("13d5ff16f0dc8588aec0855912e43550", "YzRiOGFhMTZiNzllODQ1ZjY5Y2M0NzhlZjUwY2JlMmI3NWUzOTZhNzhiN2IyYjY5MzkzNWU5MDQxNjJmY2IzMw==", "GET", encodedURI, "1628736088059"));
+        //console.log(await auth.createSignedJWT("Test", "AJ", "admin", "In00KTwvWzA1JC00Zls5O2AzPTAkOSsuPy8oI1xcPSg8OWImXXw8QDlkNyMjKmYoPDg0KSklM2AwKC5hIjojJjxeL2A5PVxeXnw3NDw8ZmYhZi80KTEpIj0tYlw9NHx8JTIrMyM5Zl8kPC5mOCIofmI8YXw6Mjp7IjdmKWYwJSJhJV4jLHsrYTQ8YipbMWJfLVtiOyQlOlwoez8mLCVbPTkkLkAlMy8+KlwkPC0hKH41JC5gLF8/YDUjNzt9IVshZCQmOzA6OztmXTEsZV8uYytAXT9bZC0rQH49N10/Pl8oMGIqQGNAOjQpOTwvIj9dK1wwPmQpIi0iZF0kPiQvOQ=="))
         //console.log(auth.createSignedJWT("myob_3pm", "Clark Kent", "ADMINISTRATOR", "In00KTwvWzA1JC00Zls5O2AzPTAkOSsuPy8oI1xcPSg8OWImXXw8QDlkNyMjKmYoPDg0KSklM2AwKC5hIjojJjxeL2A5PVxeXnw3NDw8ZmYhZi80KTEpIj0tYlw9NHx8JTIrMyM5Zl8kPC5mOCIofmI8YXw6Mjp7IjdmKWYwJSJhJV4jLHsrYTQ8YipbMWJfLVtiOyQlOlwoez8mLCVbPTkkLkAlMy8+KlwkPC0hKH41JC5gLF8/YDUjNzt9IVshZCQmOzA6OztmXTEsZV8uYytAXT9bZC0rQH49N10/Pl8oMGIqQGNAOjQpOTwvIj9dK1wwPmQpIi0iZF0kPiQvOQ=="));
         /*const signedToken = auth.createSignedJWT("myob-3pm", "AJ", "ADMINISTRATOR", "In00KTwvWzA1JC00Zls5O2AzPTAkOSsuPy8oI1xcPSg8OWImXXw8QDlkNyMjKmYoPDg0KSklM2AwKC5hIjojJjxeL2A5PVxeXnw3NDw8ZmYhZi80KTEpIj0tYlw9NHx8JTIrMyM5Zl8kPC5mOCIofmI8YXw6Mjp7IjdmKWYwJSJhJV4jLHsrYTQ8YipbMWJfLVtiOyQlOlwoez8mLCVbPTkkLkAlMy8+KlwkPC0hKH41JC5gLF8/YDUjNzt9IVshZCQmOzA6OztmXTEsZV8uYytAXT9bZC0rQH49N10/Pl8oMGIqQGNAOjQpOTwvIj9dK1wwPmQpIi0iZF0kPiQvOQ==");
         console.log("Signed Token", signedToken);

@@ -3,11 +3,11 @@
 // Dependencies
 const Authenticator = require("./class/authenticate");
 const auth = new Authenticator(process.env.dbUser, process.env.host, process.env.dbName, process.env.dbMasterPass, process.env.dbPort);
+const myob_routes = ""; //require("./routes/myob-routes");
 
 function route(app) {
-    // Authenticate user
-    app.get("/", async function(req, res, next) {
-        console.log(req.headers);
+    app.route("/myob").get(function(req, res, next) {
+        console.log(req);
     });
 }
 
