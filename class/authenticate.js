@@ -502,11 +502,8 @@ class Authenticator {
     async verifySignature(tokenId, signature, method, url, timestamp) {
         // First get the tokenId
         const tokenRecords = await this.getUserTokens("", tokenId);
-        console.log(tokenRecords);
             if(Array.isArray(tokenRecords) && tokenRecords.length > 0) {
                 const signatureStr = this.createFullSignature(method, url, timestamp, tokenId, tokenRecords[0]["secret"], tokenRecords[0]["owner"]);
-                console.log("Recreated signature", signatureStr);
-                console.log("Original signature", signature);
                     if(signatureStr === signature) {
                         return true;
                     }
@@ -515,8 +512,7 @@ class Authenticator {
     }
 
     createFullSignature(method, url, timestamp, tokenId, secret, ownerId) {
-        //return Buffer.from(this.createSignature("sha256", test.secret, this.base64UrlEncode(JSON.stringify(test)))).toString("base64");
-        return Buffer.from(this.createSignature("sha256", secret, `${method}&${url}&${timestamp}&${secret}&${ownerId}&${tokenId}`)).toString("base64");
+        return Buffer.from(this.createSignature("sha256", secret, `${method}&${encodeURIComponent(url)}&${timestamp}&${secret}&${ownerId}&${tokenId}`)).toString("base64");
     }
 
     /**

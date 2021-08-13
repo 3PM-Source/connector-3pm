@@ -22,10 +22,10 @@ class MYOB {
             return "Missing database connection client!";
         }
         var unexpectedError;
-        const tokens = await client.getOAuth2Token("", "myob_oauth2_tokens");
+        const tokens = await client.getOAuth2Token("myob_oauth2_tokens");
             if(!options.hasOwnProperty("headers")) {
                 options["headers"] = { 
-                    Authorization: `Bearer ${tokens["oauth_token"][0]["access_token"]}`,
+                    Authorization: `Bearer ${tokens["access_token"]}`,
                     "x-myobapi-cftoken": `${Buffer.from("Administrator:").toString("base64")}`,
                     "x-myobapi-key": this.clientId,
                     "x-myobapi-version": "v2",
@@ -82,10 +82,11 @@ class MYOB {
         return request;
     }
 
-    async getAuthorizationCode() {
+    async getAuthorizationCode(dbClient) {
         const url = await this.myobRequest(
             `${this.myobServer}/oauth2/account/authorize?client_id=${this.clientId}&redirect_uri=${this.redirectUri}&response_type=code&scope=CompanyFile`, 
             { method: "GET" },
+            dbClient,
             "URL"
         );
         return url;
@@ -162,7 +163,7 @@ class MYOB {
             if(Array.isArray(companyFiles) && companyFiles.length > 0) {
                 return companyFiles;
             } else {
-                throw companyFiles;
+                throw new Error(companyFiles);
             }
     }
 

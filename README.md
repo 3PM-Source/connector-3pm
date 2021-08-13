@@ -7,7 +7,7 @@ Your request should include the following headers
 headers: {
 	Authorization: Bearer <Signature String>
 	timestamp: current timestamp when request was created on client side as a string
-	tokenId: <token Id string>
+	tokenid: <token Id string>
 }
 
 The Signature String is calculated by:
@@ -20,7 +20,9 @@ ownerId: userId of the generated token
 tokenId: the key id of the secret
 timestamp: current timestamp when request was sent in milliseconds as string
 
-JavaScript example (NOTE: never store keys or any of these in variables)
+JavaScript example (**NOTE: never hardcode keys or any similar sensitive data on client side, fetch this from your web app's db or storage at calculation time**)
+You should store your secret, ownerId and tokenId securely in your web app's db and only fetch it when calculating the signature string OR when making the actual
+api request.
 ```
 const signatureStr = method + "&" + encodedURI + "&" + timestamp + "&" + secret + "&" + ownerId + "&" + tokenId;
 const signature = btoa(CryptoJS.enc.Hex.stringify(CryptoJS.HmacSHA256(signatureStr, secret))).toString("base64");
