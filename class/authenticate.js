@@ -500,14 +500,17 @@ class Authenticator {
     }
 
     async verifySignature(tokenId, signature, method, url, timestamp) {
+        console.time("Time to authorize");
         // First get the tokenId
         const tokenRecords = await this.getUserTokens("", tokenId);
             if(Array.isArray(tokenRecords) && tokenRecords.length > 0) {
                 const signatureStr = this.createFullSignature(method, url, timestamp, tokenId, tokenRecords[0]["secret"], tokenRecords[0]["owner"]);
                     if(signatureStr === signature) {
+                        console.timeEnd("Time to authorize");
                         return true;
                     }
             }
+        console.timeEnd("Time to authorize");
         return false;
     }
 

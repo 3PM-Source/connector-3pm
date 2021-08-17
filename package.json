@@ -18,7 +18,8 @@
     "express": "^4.17.1",
     "moment-timezone": "^0.5.33",
     "node-fetch": "^2.6.1",
-    "pg": "^8.7.1"
+    "pg": "^8.7.1",
+    "pg-dump": "^0.10.0"
   },
   "devDependencies": {
     "typescript": "^4.3.5"

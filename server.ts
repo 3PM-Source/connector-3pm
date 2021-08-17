@@ -21,6 +21,5 @@ app.use(function(req, res, next) {
 app.listen(process.env.PORT, async function() {
     console.log("Listening on port " + process.env.PORT + ", server ready...");
 });
-
-// Pass requests to router
+// Pass requests to myob
 app.use("/myob", myob_routes);

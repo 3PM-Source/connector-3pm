@@ -17,15 +17,19 @@ class MYOB {
         this.tokensPath = "./tokens/tokens.json";
     }
     // responseType can be either JSON, BUFFER OR URL OR TEXT
-    async myobRequest(url, options, client, responseType = "JSON", retry = 3) {
+    async myobRequest(url, options, client, responseType = "JSON", generateToken = false, retry = 3) {
         if(!client || typeof client !== "object") {
             return "Missing database connection client!";
         }
         var unexpectedError;
         const tokens = await client.getOAuth2Token("myob_oauth2_tokens");
+            if(!tokens && !generateToken) {
+                const authorize = await this.getAuthorizationCode();
+                return authorize;
+            }
             if(!options.hasOwnProperty("headers")) {
                 options["headers"] = { 
-                    Authorization: `Bearer ${tokens["access_token"]}`,
+                    Authorization: `Bearer ${tokens["oauth_token"]["access_token"]}`,
                     "x-myobapi-cftoken": `${Buffer.from("Administrator:").toString("base64")}`,
                     "x-myobapi-key": this.clientId,
                     "x-myobapi-version": "v2",
@@ -82,13 +86,20 @@ class MYOB {
         return request;
     }
 
-    async getAuthorizationCode(dbClient) {
-        const url = await this.myobRequest(
-            `${this.myobServer}/oauth2/account/authorize?client_id=${this.clientId}&redirect_uri=${this.redirectUri}&response_type=code&scope=CompanyFile`, 
-            { method: "GET" },
-            dbClient,
-            "URL"
-        );
+    async getAuthorizationCode() {
+        const redirectURLEncoded = encodeURIComponent(this.redirectUri);
+        const url = await fetch(`https://secure.myob.com/oauth2/account/authorize?client_id=${this.clientId}&redirect_uri=${redirectURLEncoded}&response_type=code&scope=${this.scopes}`, { method: "GET" }).then(async (resp) => {
+            if(resp.ok) {
+                return resp.url;
+            } else {
+                let unexpectedError = { message: resp["statusText"], status: resp["status"] };
+                const error = await resp.json();
+                unexpectedError = error;
+                throw JSON.stringify(unexpectedError);
+            }
+        }).catch((error) => {
+            return error;
+        });
         return url;
     }
 
@@ -99,7 +110,7 @@ class MYOB {
      * @returns new OAuth2.0 tokens from MYOB
      */
     async generateTokens(url, client) {
-        if(!url || !client || typeof url !== "string" || !url.includes("https://") || typeof client !== "object") {
+        if(!url || !client || typeof url !== "string" || !url.includes("code=") || typeof client !== "object") {
             throw "Invalid url or client";
         }
         const parsedCode = url.split("code=")[1].split("&") ? url.split("code=")[1].split("&")[0] : url.split("code=")[1];
@@ -112,7 +123,7 @@ class MYOB {
                 },
                 method: "POST",
                 body: `client_id=${this.clientId}&client_secret=${this.clientSecret}&scope=CompanyFile&code=${parsedCode}&redirect_uri=${redirectUri}&grant_type=authorization_code`
-            }, client);
+            }, client, "JSON", true);
         //console.log(await saveFile(this.tokensPath, JSON.stringify(tokens)));
         try {
             await client.saveOAuth2Token(tokens, "myob_oauth2_tokens");
@@ -127,7 +138,7 @@ class MYOB {
             return "Invalid client";
         }
         //var tokens = JSON.parse(await openFile(this.tokensPath));
-        var tokens = await client.getOAuth2Token("", "myob_oauth2_tokens");
+        var tokens = await client.getOAuth2Token("myob_oauth2_tokens");
             if(typeof tokens !== "object" || !tokens.hasOwnProperty("id") || !tokens.hasOwnProperty("oauth_token")) {
                 throw new Error("No refresh token exists to execute refresh");
             }
@@ -137,7 +148,7 @@ class MYOB {
                 "Content-Type" : "application/x-www-form-urlencoded"
             },
             method: "POST",
-            body: `client_id=${this.clientId}&client_secret=${this.clientSecret}&refresh_token=${tokens["oauth_token"][0]["refresh_token"]}&grant_type=refresh_token`
+            body: `client_id=${this.clientId}&client_secret=${this.clientSecret}&refresh_token=${tokens["oauth_token"]["refresh_token"]}&grant_type=refresh_token`
         },
         client
         );
@@ -149,7 +160,7 @@ class MYOB {
         if(!newTokens || typeof newTokens !== "object" || (typeof newTokens === "object" && (!newTokens.hasOwnProperty("access_token") || !newTokens.hasOwnProperty("refresh_token")))) {
             return "New tokens failed to generate!";
         }
-        await client.saveOAuth2Token( { ...newTokens, user: tokens["oauth_token"][0]["user"] }, "myob_oauth2_tokens" );
+        await client.saveOAuth2Token( { ...newTokens, user: tokens["oauth_token"]["user"] }, "myob_oauth2_tokens" );
         return newTokens;
     }
 
@@ -160,7 +171,7 @@ class MYOB {
         const companyFiles = await this.myobRequest("https://api.myob.com/accountright/", { 
             method: "GET"
         }, client);
-            if(Array.isArray(companyFiles) && companyFiles.length > 0) {
+            if((Array.isArray(companyFiles) && companyFiles.length > 0) || (typeof companyFiles === "string" && companyFiles.includes("https://"))) {
                 return companyFiles;
             } else {
                 throw new Error(companyFiles);

@@ -31,6 +31,10 @@ class Zoho {
             if(!url || typeof url !== "string" || !options || typeof options !== "object" || typeof args !== "object" || typeof responseType !== "string") {
                 throw new Error("Invalid parameters received! Expected Url, options and response type");
             }
+            if(options.hasOwnProperty("Authorization") && !(options["Authorization"].split(" ")[1])) {
+                const authorize = await this.getAuthorizationCode();
+                return authorize;
+            }
             const request = await fetch(url, options).then(async (resp) => {
                     if(resp.ok) {
                         const returnResp = async function(type) { 
@@ -66,9 +70,17 @@ class Zoho {
     }
 
     async getAuthorizationCode() {
-        const url = await this.zohoRequest(`https://accounts.zoho.com/oauth/v2/auth?response_type=code&client_id=${this.clientId}&scope=${this.scope}&redirect_uri=${this.redirectUri}&access_type=${this.accessType}&prompt=${this.prompt}`, {
-            method: "GET"
-        }, "Url");
+        const url = await fetch(url, options).then(async (resp) => {
+                if(resp.ok) {
+                    return resp.url;
+                } else {
+                    const error = await resp.json();
+                    console.log(error);
+                    throw new Error(JSON.stringify(error));
+                }
+        }).catch((error) => {
+            return error.message;
+        });
         return url;
     }
 
