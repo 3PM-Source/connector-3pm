@@ -19,7 +19,7 @@ app.use(function(req, res, next) {
 });
 // Start the server
 app.listen(process.env.PORT, async function() {
-    console.log("Listening on port " + process.env.PORT + ", server ready...");
+    console.log("Listening on port " + process.env.PORT + ", " + process.env.MODE + " server ready...");
 });
 // Pass requests to myob
 app.use("/myob", myob_routes);

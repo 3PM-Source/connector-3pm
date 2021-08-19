@@ -19,15 +19,38 @@ router.get("/api/tokens", async (req, res, next) => {
 // Get Company Files to extract URI from 
 // Asjad Amin Mufti (17-August-2021) | TO DO: Need to add some way of implementing pagination, it's not likely there will be thousands of company, but we need to make that assumption that it is possible 
 router.get("/api/companyfiles", async (req, res, next) => {
-    if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${myobApiUrl}${req["url"]}`, req["headers"]["timestamp"])) {
+    if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${decodeURIComponent(myobApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
         res.status(403).send("Forbidden");
         return;
     } else {
-        console.time("Time to make actual call");
+        console.time("Time to get company files");
         const files = await myob.getCompanyFiles(auth);
-        console.timeEnd("Time to make actual call");
+        console.timeEnd("Time to get company files");
         res.status(200).send(files);
         return;
+    } 
+});
+
+router.get("/api/contacts/:companyuri/:type?/:id?", async (req, res, next) => {
+    if(!req.params.companyUri) {
+        res.status(400).send("MYOB Company URI is required");
+        return;
+    }
+    if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${decodeURIComponent(myobApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
+        res.status(403).send("Forbidden");
+        return;
+    } else {
+        try {
+            console.time("Time to get contacts");
+            const contacts = await myob.contacts(req.params.companyuri, auth, "GET", (req.params.type ? req.params.type : "ALL"), req.params.id);
+            console.timeEnd("Time to get contacts");
+            res.status(200).send(contacts);
+            return;
+        } catch (error) {
+            res.status(503).send(error.message);
+            console.log(error);
+            return;
+        }
     } 
 });
 

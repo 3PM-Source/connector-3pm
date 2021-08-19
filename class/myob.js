@@ -229,11 +229,20 @@ class MYOB {
                 } else {
                     url += "?returnBody=true";
                 }
-            var allContacts = [];
+            /*var allContacts = [];
             var morePages = true;
-            var nextPageLink = "";
+            var nextPageLink = "";*/
                 if(methodType === "GET") {
-                    while(morePages === true) {
+                    let temp = await this.myobRequest(url, { method: "GET" }, client);
+                        if(!temp.hasOwnProperty("Items") && temp.hasOwnProperty("UID")) {
+                            return temp;
+                        } else if(temp.hasOwnProperty("NextPageLink") && temp["NextPageLink"] === null) {
+                            return { contacts: temp["Items"] };
+                        } else if(temp.hasOwnProperty("NextPageLink") && temp["NextPageLink"] !== null) {
+                            return { contacts: temp["Items"], moreRecords: temp["NextPageLink"] };
+                        }
+                    
+                    /*while(morePages === true) {
                         const temp = nextPageLink === "" ? await this.myobRequest(url, { method: "GET" }, client) : await this.myobRequest(nextPageLink, { methodType: "GET"}, client);
                             if(!temp.hasOwnProperty("Items") && temp.hasOwnProperty("UID")) {
                                 return [temp];
@@ -254,7 +263,7 @@ class MYOB {
                             }
                         return temp;
                     } (allContacts);
-                    return returnAllContacts;
+                    return returnAllContacts;*/
                 } else {
                     if(methodType === "POST" || methodType === "PUT") {
                         const contact = await this.myobRequest(url, { method: methodType, body: JSON.stringify(payload) }, client, "json");
