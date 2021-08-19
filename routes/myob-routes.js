@@ -12,6 +12,7 @@ router.get("/api/tokens", async (req, res, next) => {
     } catch (error) {
         console.log(error.message);
         res.status(503).send(error.message);
+        return;
     }
 });
 
