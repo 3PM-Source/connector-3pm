@@ -1,0 +1,263 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 13.3
+-- Dumped by pg_dump version 13.3
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+CREATE SCHEMA public;
+
+
+ALTER SCHEMA public OWNER TO postgres;
+
+--
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
+--
+
+COMMENT ON SCHEMA public IS 'standard public schema';
+
+
+--
+-- Name: gen_password_hash(character varying, character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.gen_password_hash(pass_str character varying, user_email character varying) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	pass_hash varchar;
+BEGIN
+	SELECT sha256(CONCAT(user_email, '_', pass_str)::bytea) INTO pass_hash;
+	RETURN pass_hash;
+END;
+$$;
+
+
+ALTER FUNCTION public.gen_password_hash(pass_str character varying, user_email character varying) OWNER TO postgres;
+
+--
+-- Name: generate_id(text); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.generate_id(tb_name text) RETURNS text
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+	tb_count bigint;
+	id_str text;
+BEGIN
+	EXECUTE format('SELECT COUNT (id) FROM %s', tb_name)
+		INTO tb_count;
+	tb_count = tb_count + 1;
+	SELECT md5(CONCAT(tb_name, tb_count)) INTO id_str;
+	RETURN id_str;
+END;
+$$;
+
+
+ALTER FUNCTION public.generate_id(tb_name text) OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: myob_oauth2_tokens; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.myob_oauth2_tokens (
+    id character varying NOT NULL,
+    oauth_token jsonb
+);
+
+
+ALTER TABLE public.myob_oauth2_tokens OWNER TO postgres;
+
+--
+-- Name: user_roles; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.user_roles (
+    role text NOT NULL
+);
+
+
+ALTER TABLE public.user_roles OWNER TO postgres;
+
+--
+-- Name: user_tokens; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.user_tokens (
+    id character varying NOT NULL,
+    owner character varying NOT NULL,
+    secret character varying NOT NULL
+);
+
+
+ALTER TABLE public.user_tokens OWNER TO postgres;
+
+--
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.users (
+    id character varying NOT NULL,
+    name character varying NOT NULL,
+    role character varying,
+    password character varying,
+    email character varying NOT NULL,
+    created bigint,
+    login_token character varying,
+    login_tries bigint,
+    locked_release bigint
+);
+
+
+ALTER TABLE public.users OWNER TO postgres;
+
+--
+-- Name: zoho_oauth2_tokens; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.zoho_oauth2_tokens (
+    id character varying NOT NULL,
+    oauth_token jsonb NOT NULL
+);
+
+
+ALTER TABLE public.zoho_oauth2_tokens OWNER TO postgres;
+
+--
+-- Data for Name: myob_oauth2_tokens; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.myob_oauth2_tokens (id, oauth_token) FROM stdin;
+a5d6ab714f93b5985901500a83fde56a	{"user": {"uid": "297c80bd-7f0a-49e1-849f-c184c4862f7f", "username": "data@3pm.nz"}, "scope": "CompanyFile", "expires_in": "1200", "token_type": "bearer", "access_token": "AAEAADdN2iPWOsh5NdlO0rhgsEXFohoqSbjbdK4lby6ZAbjLLcYhH-daxBmCXXtvth2WM7WZBGcF5_x6O1aj_3z0iw3INCWrt07hZSmrB7neN98lfMsr_fJJNMWWqasxzP-xQDs_5_bAFQY9__9nOvj9xnn2e8p6GuvrNuvYmSqBGOQhJeM0TbOATOd28mz7aDc-LXzkfNrqGoSat_VFqtRw4WmnU7sYG1h9774a0-j1Q_FW4Vxj8rab2cs0rusdtMfe_jHHBBzT_IUl5aZ3RKaPcjUGuTFM0cBbMfSIKowHuB1yfK82sqnuOFDOglQlsyp2EJIJwrthItpwApHtXhh7PpOUAQAAAAEAABEp35mu4CT9geynfeMQY0y2Dhfhiia7Rx5mMdoMeb4RNfXA3KcnExuieweaR5SHwYfbfVB08Bd17WXIOqM-PLXTmG-XkGtlVyHO6JzevYE7unrp1xfRDuSJdL32LRetGePz8-DIa1dwy1hBq7Xp366gKtfveigc_nepbRXwGbWYFkXrPlnAjcENAi6HgHOG1confE3KCAb8o6l75O37bc1keqzjKjOJTDRwyvqS2jj5jJ7SidQURhez2rKdj7QvRO_Px6RFbaLLK9EtPrkODnRZAoDTp_Dkh95CxNQc9ROb79S7uSsB2RTquEa-K7EFvqA9snhf_0q1XWREZS02kpUM4UXRGSsQbgmD1_vibH6nMdVi5uGDyzwrHIegLaUCt1nd-vimCrlk921tY8iwUz4yXPeiz26n8lWPtCy7f8Bg_FkKG8O3QRUYyeoi3lr-O1kCeffdKApFc0x-KmBxjSSGePzxSq912XTA9UV2IPUKHs1Tc4v6mTmN0T9hJgaTDOvvql85BQlULRKbqt9DrP0", "refresh_token": "fXGo!IAAAAIJqON-uB7zND2Bxc_ZCD7rIoA4ojHYemRpXkK-9vSN3sQAAAAFgPqGVRe_VyzGU4qUPChobbv1O2CB3ALYwzMf1eod7QVcKHExmj5Vhw0LGH_djK0lIVl5Jt2ghHwNtOBpe1Hv2UA9QrlSrf75HUtqKFENFno7GVnBePmBhMEwYxxjaNtsAqnAQQJDTfZbH1gjjx52pBNptm6_AGQOtTQ7PEDUXdxauRblax8Nw4vUtPpDqej4mJ96qlHIW0ipyiMkjpJ-8y3emHfXkKy44_XJdpYkyAQ"}
+\.
+
+
+--
+-- Data for Name: user_roles; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.user_roles (role) FROM stdin;
+ADMINISTRATOR
+STANDARD
+\.
+
+
+--
+-- Data for Name: user_tokens; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.user_tokens (id, owner, secret) FROM stdin;
+13d5ff16f0dc8588aec0855912e43550	04fe61ad431f9fe13d081de1f7ffaa02	In00KTwvWzA1JC00Zls5O2AzPTAkOSsuPy8oI1xcPSg8OWImXXw8QDlkNyMjKmYoPDg0KSklM2AwKC5hIjojJjxeL2A5PVxeXnw3NDw8ZmYhZi80KTEpIj0tYlw9NHx8JTIrMyM5Zl8kPC5mOCIofmI8YXw6Mjp7IjdmKWYwJSJhJV4jLHsrYTQ8YipbMWJfLVtiOyQlOlwoez8mLCVbPTkkLkAlMy8+KlwkPC0hKH41JC5gLF8/YDUjNzt9IVshZCQmOzA6OztmXTEsZV8uYytAXT9bZC0rQH49N10/Pl8oMGIqQGNAOjQpOTwvIj9dK1wwPmQpIi0iZF0kPiQvOQ==
+\.
+
+
+--
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.users (id, name, role, password, email, created, login_token, login_tries, locked_release) FROM stdin;
+04fe61ad431f9fe13d081de1f7ffaa02	CK	ADMINISTRATOR	ef9a9f7bc3d7d27b8ff0e9b8f177f46ab9d28c02a91ef645b407ad1dc34deecc5932b66ad762af87f4c581b8ed93c00e59bc6267663c80682e3d8f76cbfd5fa4	clark.kent@3pm.nz	1622697169536	\N	0	\N
+86425c35a33507d479f71ade53a669aa	Ben Little	STANDARD	\\xccb0fad1c12b980582284db121c6f1ad437c9367ddbfbec7d4976c3bb7a2e041	ben.little@3pm.nz	\N	\N	0	\N
+cf4f206b389501c51b105bcf97fbfd64	Matthew Uy	STANDARD	\\xf6dc399cf1bbed4be8683a1dc7135a74081716df4e1e38aa0ce0e855c2a470d9	matthew.uy@3pm.nz	\N	\N	0	\N
+f60df84304552b9640fe3bc9a7a534b2	Amber Hamman	STANDARD	\\\\xf75ea14e6070828d4fa91cac9a17d4d41fe46c05a7a7e5f19e8d733b61879770	amber.hamman@3pm.nz	\N	\N	0	\N
+b2255c5d029d69e44374a99e9d03921d	AJ	ADMINISTRATOR	ec441ce28a89864f518c8eec9c865ae37147eb9cdcb5b9aa091a93572cb938e8cb8ccb48777b8b58b4ebbf09499c3726bd2c814e23cfdd6accea8b7b27e37913	asjad.amin@3pm.nz	1622697169536	null	2	\N
+\.
+
+
+--
+-- Data for Name: zoho_oauth2_tokens; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.zoho_oauth2_tokens (id, oauth_token) FROM stdin;
+b28f90ead03ad6c136de7a6be14a0017	{"api_domain": "https://www.zohoapis.com", "expires_in": 3600, "token_type": "Bearer", "access_token": "1000.0c2897281b1a14f3c500dc8c153d213e.1ce59ee64d775eb3f0b402ecb537a54c", "refresh_token": "1000.ef22bdf0f6b4b49e9b87bba6c2c9aec4.6b08a8ca79586c7c6c447250f5b5b624", "accountsServer": "accounts.zoho.com"}
+\.
+
+
+--
+-- Name: myob_oauth2_tokens myob_oauth2_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.myob_oauth2_tokens
+    ADD CONSTRAINT myob_oauth2_tokens_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users unique email; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT "unique email" UNIQUE (email);
+
+
+--
+-- Name: user_roles user_roles_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.user_roles
+    ADD CONSTRAINT user_roles_pkey PRIMARY KEY (role);
+
+
+--
+-- Name: user_tokens user_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.user_tokens
+    ADD CONSTRAINT user_tokens_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: zoho_oauth2_tokens zoho_oauth2_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.zoho_oauth2_tokens
+    ADD CONSTRAINT zoho_oauth2_tokens_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: user_tokens fk_owner; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.user_tokens
+    ADD CONSTRAINT fk_owner FOREIGN KEY (owner) REFERENCES public.users(id);
+
+
+--
+-- Name: users fk_roles; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT fk_roles FOREIGN KEY (role) REFERENCES public.user_roles(role) DEFERRABLE NOT VALID;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
