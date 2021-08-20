@@ -44,8 +44,8 @@ Then you can call the available apis.
 ### Endpoints:
 
 1. **Contacts**
-
-  ```GET <baseURL>/api/contacts/:companyuri/:type?/:id?```
+	
+	* ```GET <baseURL>/api/contacts/:companyuri/:type?/:id?```
 
 * **companyuri** is the full url you got from the array of objects returned from your call to ```/api/companyfiles```
 * **type** and **id** parameters are optional. If you do provide **id** however, the **type** parameter becomes mandatory.
