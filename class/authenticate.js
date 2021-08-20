@@ -503,7 +503,6 @@ class Authenticator {
     }
 
     async verifySignature(tokenId, signature, method, url, timestamp) {
-        console.log("GOT URL AS", url);
         console.time("Time to authorize");
         // First get the tokenId
         const tokenRecords = await this.getUserTokens("", tokenId);

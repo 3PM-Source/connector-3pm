@@ -32,7 +32,7 @@ router.get("/api/companyfiles", async (req, res, next) => {
 });
 
 router.get("/api/contacts/:companyuri/:type?/:id?", async (req, res, next) => {
-    if(!req.params.companyUri) {
+    if(!req.params.companyuri) {
         res.status(400).send("MYOB Company URI is required");
         return;
     }
@@ -41,9 +41,7 @@ router.get("/api/contacts/:companyuri/:type?/:id?", async (req, res, next) => {
         return;
     } else {
         try {
-            console.time("Time to get contacts");
-            const contacts = await myob.contacts(req.params.companyuri, auth, "GET", (req.params.type ? req.params.type : "ALL"), req.params.id);
-            console.timeEnd("Time to get contacts");
+            const contacts = await myob.contacts(req.params.companyuri, auth, "GET", (req.params.type ? req.params.type : "CONTACT"), req.params.id);
             res.status(200).send(contacts);
             return;
         } catch (error) {

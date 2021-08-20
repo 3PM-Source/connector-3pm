@@ -188,7 +188,7 @@ class MYOB {
      * @param {String} payload The properties for creating or updating a contact
      * @returns 
      */
-    async contacts(companyUri, client, methodType = "GET", contactType = "ALL", contactId = undefined, payload = undefined) {
+    async contacts(companyUri, client, methodType = "GET", contactType = "CONTACT", contactId = undefined, payload = undefined) {
         methodType = methodType.toUpperCase();
         contactType = contactType.toUpperCase();
             if(
@@ -198,37 +198,42 @@ class MYOB {
                 throw new Error("Required parameters invalid or missing: either Company Uri, Database Client or methodType");
             }
             if((methodType === "PUT" && !contactId) || (methodType === "PUT" && !payload) || (methodType === "DELETE" && !contactId) ||
-                (methodType === "POST" && !payload) || (methodType === "DELETE" && contactType === "ALL") || (methodType === "POST" && contactType === "ALL")
+                (methodType === "POST" && !payload) || (methodType === "DELETE" && contactType === "Contact") || (methodType === "POST" && contactType === "Contact")
             ) {
-                throw new Error("Update, create or delete attempt without update body and/or contact id OR create attempt without valid contact type specified. ALL is not allowed when creating, updating or delete");
+                throw new Error("Update, create or delete attempt without update body and/or contact id OR create attempt without valid contact type specified. Contact is not allowed when creating, updating or delete");
             }
             var url = function(cType) {
-                var tempUrl = function (type) {
-                    switch(cType) {
-                        case "ALL":
-                            return `${companyUri}/Contact`;
-                        case "CUSTOMER":
-                            return `${companyUri}/Contact/Customer`;
-                        case "SUPPLIER":
-                            return `${companyUri}/Contact/Supplier`;
-                        case "EMPLOYEE":
-                            return `${companyUri}/Contact/Employee`;
-                        case "PERSONAL":
-                            return `${companyUri}/Contact/Personal`;
-                        default:
-                            throw new Error("Unrecognized contact type");
-                    }
-                }(cType);
+                let tempUrl;
+                if(!companyUri.includes("$top=")) {
+                    tempUrl = function (type) {
+                        switch(type) {
+                            case "CONTACT":
+                                return `${companyUri}/Contact`;
+                            case "CUSTOMER":
+                                return `${companyUri}/Contact/Customer`;
+                            case "SUPPLIER":
+                                return `${companyUri}/Contact/Supplier`;
+                            case "EMPLOYEE":
+                                return `${companyUri}/Contact/Employee`;
+                            case "PERSONAL":
+                                return `${companyUri}/Contact/Personal`;
+                            default:
+                                throw new Error("Unrecognized contact type");
+                        }
+                    }(cType);
                     if(contactId) {
                         tempUrl += `/${contactId}`;
                     }
+                    if(methodType === "GET" && !contactId) {
+                        tempUrl += "?$top=1000&returnBody=true";
+                    } else {
+                        tempUrl += "?returnBody=true";
+                    }
+                } else {
+                    tempUrl = companyUri;
+                }
                 return tempUrl;
             }(contactType);
-                if(methodType === "GET" && !contactId) {
-                    url += "?$top=1000";
-                } else {
-                    url += "?returnBody=true";
-                }
             /*var allContacts = [];
             var morePages = true;
             var nextPageLink = "";*/
@@ -239,7 +244,7 @@ class MYOB {
                         } else if(temp.hasOwnProperty("NextPageLink") && temp["NextPageLink"] === null) {
                             return { contacts: temp["Items"] };
                         } else if(temp.hasOwnProperty("NextPageLink") && temp["NextPageLink"] !== null) {
-                            return { contacts: temp["Items"], moreRecords: temp["NextPageLink"] };
+                            return { contacts: temp["Items"], next: temp["NextPageLink"] };
                         }
                     
                     /*while(morePages === true) {
