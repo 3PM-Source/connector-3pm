@@ -47,11 +47,11 @@ Then you can call the available apis.
 	
 	* ```GET <baseURL>/api/contacts/:companyuri/:type?/:id?```
 
-* **companyuri** is the full url you got from the array of objects returned from your call to ```/api/companyfiles```
-* **type** and **id** parameters are optional. If you do provide **id** however, the **type** parameter becomes mandatory.
-acceptable values for **type** can be ***Contact***, ***Customer***, ***Supplier***, ***Employee***, ***Personal***
+	* **companyuri** is the full url you got from the array of objects returned from your call to ```/api/companyfiles```
+	* **type** and **id** parameters are optional. If you do provide **id** however, the **type** parameter becomes mandatory.
+	acceptable values for **type** can be ***Contact***, ***Customer***, ***Supplier***, ***Employee***, ***Personal***
 
-* **id** is the unique identifier of a single contact. This is returned in contact objects.
+	* **id** is the unique identifier of a single contact. This is returned in contact objects.
 
 2. **Accounts (Documentation WIP)**
 
