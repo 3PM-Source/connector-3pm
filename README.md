@@ -51,7 +51,7 @@ Then you can call the available apis.
 	* **type** and **id** parameters are optional. If you do provide **id** however, the **type** parameter becomes mandatory.
 	acceptable values for **type** can be ***Contact***, ***Customer***, ***Supplier***, ***Employee***, ***Personal***
 
-	* **id** is the unique identifier of a single contact. This is returned in contact objects.
+	* **id** is the unique identifier of a single contact, pass this if you want to get the details of a specific contact.
 
 2. **Accounts (Documentation WIP)**
 
