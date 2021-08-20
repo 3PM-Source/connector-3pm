@@ -14,7 +14,8 @@ headers: {
 ```
 
 The Signature String is calculated by:
-<httpRequest_method>&<request_url>&<timestamp>&<secret>&<ownerId>&<tokenId>
+
+***httpRequest_method***&***request_url***&***timestamp***&***secret***&***ownerId***&***tokenId***
 
 ***httpRequest_method***: the type or http request method
 ***request_url***: full api call url with URI Components encoded
