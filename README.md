@@ -53,6 +53,12 @@ acceptable values for **type** can be ***Contact***, ***Customer***, ***Supplier
 
 * **id** is the unique identifier of a single contact. This is returned in contact objects.
 
+2. Accounts (Documentation WIP)
+
+3. Invoicesv (Service types only) (Documentation WIP)
+
+4. Tax Codes (Documentation WIP)
+
 ## MYOB Integration general notes
 
 * Invoices requires integration of Customers (Contacts), Accounts and Tax Code
