@@ -22,7 +22,9 @@ class MYOB {
             return "Missing database connection client!";
         }
         var unexpectedError;
+        console.time("To get the tokens");
         const tokens = await client.getOAuth2Token("myob_oauth2_tokens");
+        console.timeEnd("To get the tokens");
             if(!tokens && !generateToken) {
                 const authorize = await this.getAuthorizationCode();
                 return authorize;
@@ -39,6 +41,7 @@ class MYOB {
                     options["Content-Type"] = "application/json";
                 }
             }
+        console.time("To make the request");
         const request = await fetch(url, options).then(async (resp) => {
             if(resp.ok) {
                 switch(responseType.toUpperCase()) {
@@ -83,6 +86,7 @@ class MYOB {
         }).catch((error) => {
             return error;
         });
+        console.timeEnd("To make the request");
         return request;
     }
 
@@ -301,20 +305,31 @@ class MYOB {
             ) {
                 throw new Error("Update, create or delete attempt without update body and/or contact id OR create attempt without valid contact type specified. ALL is not allowed when creating, updating or delete");
             }
-            var url = `${companyUri}/GeneralLedger/TaxCode`;
+            let url = companyUri;
+            if(!url.includes("$top=")) {
+                url = `${companyUri}/GeneralLedger/TaxCode`;
                 if(optionalArgs["taxCodeId"]) {
                     url += `/${optionalArgs["taxCodeId"]}`;
                 }
                 if(methodType === "GET" && !optionalArgs["taxCodeId"]) {
-                    url += "?$top=1000";
+                    url += "?$top=1000&returnBody=true";
                 } else {
                     url += "?returnBody=true";
                 }
-            var allTaxCodes = [];
+            }
+            /*var allTaxCodes = [];
             var morePages = true;
-            var nextPageLink = "";
+            var nextPageLink = "";*/
                 if(methodType === "GET") {
-                    while(morePages === true) {
+                    let temp = await this.myobRequest(url, { method: "GET" }, client);
+                        if(!temp.hasOwnProperty("Items") && temp.hasOwnProperty("UID")) {
+                            return temp;
+                        } else if(temp.hasOwnProperty("NextPageLink") && temp["NextPageLink"] === null) {
+                            return { taxCodes: temp["Items"] };
+                        } else if(temp.hasOwnProperty("NextPageLink") && temp["NextPageLink"] !== null) {
+                            return { taxCodes: temp["Items"], next: temp["NextPageLink"] };
+                        }
+                    /*while(morePages === true) {
                         const temp = nextPageLink === "" ? await this.myobRequest(url, { method: "GET" }, client) : await this.myobRequest(nextPageLink, { methodType: "GET"}, client);
                             if(!temp.hasOwnProperty("Items") && temp.hasOwnProperty("UID")) {
                                 return [temp];
@@ -335,7 +350,7 @@ class MYOB {
                             }
                         return temp;
                     } (allTaxCodes);
-                    return returnAllTaxCodes;
+                    return returnAllTaxCodes;*/
                 } else {
                     if(methodType === "POST" || methodType === "PUT") {
                         const taxCode = await this.myobRequest(url, { method: methodType, body: JSON.stringify(optionalArgs["payload"]) }, client, "json");
@@ -370,20 +385,31 @@ class MYOB {
             ) {
                 throw new Error("Update, create or delete attempt without update body and/or contact id OR create attempt without valid contact type specified. ALL is not allowed when creating, updating or delete");
             }
-            var url = `${companyUri}/GeneralLedger/Account`;
+            let url = companyUri;
+            if(!url.includes("$top=")) {
+                url = `${companyUri}/GeneralLedger/Account`;
                 if(accountId) {
                     url += `/${accountId}`;
                 }
                 if(methodType === "GET" && !accountId) {
-                    url += "?$top=1000";
+                    url += "?$top=1000&returnBody=true";
                 } else {
                     url += "?returnBody=true";
                 }
-            var allAccounts = [];
+            }
+            /*var allAccounts = [];
             var morePages = true;
-            var nextPageLink = "";
+            var nextPageLink = "";*/
                 if(methodType === "GET") {
-                    while(morePages === true) {
+                    let temp = await this.myobRequest(url, { method: "GET" }, client);
+                        if(!temp.hasOwnProperty("Items") && temp.hasOwnProperty("UID")) {
+                            return temp;
+                        } else if(temp.hasOwnProperty("NextPageLink") && temp["NextPageLink"] === null) {
+                            return { accounts: temp["Items"] };
+                        } else if(temp.hasOwnProperty("NextPageLink") && temp["NextPageLink"] !== null) {
+                            return { accounts: temp["Items"], next: temp["NextPageLink"] };
+                        }
+                    /*while(morePages === true) {
                         const temp = nextPageLink === "" ? await this.myobRequest(url, { method: "GET" }, client) : await this.myobRequest(nextPageLink, { methodType: "GET"}, client);
                             if(!temp.hasOwnProperty("Items") && temp.hasOwnProperty("UID")) {
                                 return [temp];
@@ -404,7 +430,7 @@ class MYOB {
                             }
                         return temp;
                     } (allAccounts);
-                    return returnAllAccounts;
+                    return returnAllAccounts;*/
                 } else {
                     if(methodType === "POST" || methodType === "PUT") {
                         const accounts = await this.myobRequest(url, { method: methodType, body: JSON.stringify(payload) }, client, "json");
@@ -421,7 +447,7 @@ class MYOB {
      * @param {String} companyUri Uri specific to a company, can retrieve this via getCompanyFiles endpoint
      * @param {Object} client postgres pg-node database connection client object 
      * @param {String} methodType The HTTP method type i.e. GET, PUT, POST, DELETE
-     * @param {Object} optionalArgs Other arguments that are optional: invoiceId, payload, invoiceType (defaults to ALL)
+     * @param {Object} optionalArgs Other arguments that are optional: invoiceId, payload, invoiceType (defaults to ALL), Acceptable values: Service, Professional, TimeBilling OR Miscellaneous
      * @returns MYOB Invoice Array of object(s), only an object when POST or PUT is used
      */
     async invoices(companyUri, client, methodType = "GET", optionalArgs = {}) {
@@ -429,7 +455,7 @@ class MYOB {
         const payload = optionalArgs.hasOwnProperty("payload") ? optionalArgs["payload"] : undefined;
         const invoiceType = optionalArgs.hasOwnProperty("invoiceType") ? optionalArgs["invoiceType"].toUpperCase() : "ALL";
             if(invoiceType !== "SERVICE" && invoiceType !== "ALL") {
-                throw new Error("Unrecognized invoice type!");
+                throw new Error("Unrecognized or unimplemented invoice type!");
             }
             if(
                 !companyUri || typeof companyUri !== "string" || !companyUri.includes("https://") || !client || typeof client !== "object"
@@ -443,20 +469,31 @@ class MYOB {
             ) {
                 throw new Error("Update, create or delete attempt without update body and/or invoice id OR create attempt without valid invoice type specified. ALL is not allowed when creating, updating or deleting");
             }
-            var url = invoiceType === "ALL" ? `${companyUri}/Sale/Invoice` : `${companyUri}/Sale/Invoice/${invoiceType}`;
-                if(invoiceId) {
-                    url += `/${invoiceId}`;
+            let url = companyUri;
+                if(!url.includes("$top=")) {
+                    url = invoiceType === "ALL" ? `${companyUri}/Sale/Invoice` : `${companyUri}/Sale/Invoice/${invoiceType}`;
+                        if(invoiceId) {
+                            url += `/${invoiceId}`;
+                        }
+                    if(methodType === "GET" && !invoiceId) {
+                        url += "?$top=1000&returnBody=true";
+                    } else {
+                        url += "?returnBody=true";
+                    }
                 }
-                if(methodType === "GET" && !invoiceId) {
-                    url += "?$top=1000";
-                } else {
-                    url += "?returnBody=true";
-                }
-                var allInvoices = [];
+                /*var allInvoices = [];
                 var morePages = true;
-                var nextPageLink = "";
+                var nextPageLink = "";*/
                     if(methodType === "GET") {
-                        while(morePages === true) {
+                        let temp = await this.myobRequest(url, { method: "GET" }, client);
+                            if(!temp.hasOwnProperty("Items") && temp.hasOwnProperty("UID")) {
+                                return temp;
+                            } else if(temp.hasOwnProperty("NextPageLink") && temp["NextPageLink"] === null) {
+                                return { invoices: temp["Items"] };
+                            } else if(temp.hasOwnProperty("NextPageLink") && temp["NextPageLink"] !== null) {
+                                return { invoices: temp["Items"], next: temp["NextPageLink"] };
+                            }
+                        /*while(morePages === true) {
                             const temp = nextPageLink === "" ? await this.myobRequest(url, { method: "GET" }, client) : await this.myobRequest(nextPageLink, { methodType: "GET"}, client);
                                 if(!temp.hasOwnProperty("Items") && temp.hasOwnProperty("UID")) {
                                     return [temp];
@@ -477,7 +514,7 @@ class MYOB {
                                 }
                             return temp;
                         } (allInvoices);
-                        return returnAllInvoices;
+                        return returnAllInvoices;*/
                     } else {
                         if(methodType === "POST" || methodType === "PUT") {
                             const invoices = await this.myobRequest(url, { method: methodType, body: JSON.stringify(payload) }, client, "json");
