@@ -3,7 +3,9 @@ const router = require("express").Router();
 const  { myobApiUrl, auth, myob } = require("../services/api");
 myobEnv.config();
 
-// Exchange Access Code with Access Token and save to database server
+/*****************************************************************************************************************************
+    ZOHO API AUTHORIZATION
+/***************************************************************************************************************************** */
 router.get("/api/tokens", async (req, res, next) => {
     // Generate and save tokens
     try {
@@ -25,11 +27,14 @@ router.get("/api/companyfiles", async (req, res, next) => {
         res.status(403).send("Forbidden");
         return;
     } else {
-        console.time("Time to get company files");
-        const files = await myob.getCompanyFiles(auth);
-        console.timeEnd("Time to get company files");
-        res.status(200).send(files);
-        return;
+        try {
+            const files = await myob.getCompanyFiles(auth);
+            res.status(200).send(files);
+            return;
+        } catch (error) {
+            res.status(503).send(error.message);
+            return;
+        }
     } 
 });
 

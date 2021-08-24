@@ -54,14 +54,13 @@ class Zoho {
                         return returnResp;
                     } else {
                         const error = await resp.json();
-                        console.log(error);
-                            if(error["description"].toString() === "INVALID_OAUTHTOKEN") {
+                            if(error.hasOwnProperty("description") && error["description"].toString() === "INVALID_OAUTHTOKEN") {
                                 const newTokens = await this.refreshTokens(dbClient);
                                 options["headers"]["Authorization"] = `Zoho-oauthtoken ${newTokens["access_token"]}`;
                                 args["retry"]--;
                                 return this.zohoRequest(url, options, responseType, { retry: args["retry"] });
                             }
-                        throw new Error(JSON.stringify(error));
+                        return error;
                     }
             }).catch((error) => {
                 return error.message;
@@ -244,13 +243,26 @@ class Zoho {
             }
                 const tokens = (await dbClient.getOAuth2Token("zoho_oauth2_tokens"))["oauth_token"]; //JSON.parse(await openFile(this.tokensPath));
                 from = parseInt(from);
-                let stopProcessing = false;
+                /*let stopProcessing = false;
                 let allRecords = [];
-                let iterations = 0;
+                let iterations = 0;*/
                     if(!recordId) {
                         let url = filter ? `${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}?criteria=${filter}&limit=200` : 
                         `${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}?limit=200`;
-                        let start = performance.now();
+                        url = url.split("&from=")[0] + `&from=${from}`;
+                        let temp = await this.zohoRequest(url, { 
+                            headers: { 
+                                Authorization: `Zoho-oauthtoken ${tokens["access_token"]}`
+                            }, 
+                            method: "GET"
+                        }, "JSON", dbClient);
+                        //from+=200;
+                        if(temp.hasOwnProperty("data")) {
+                            return ({ records: temp["data"], nextRowsFrom: from+=200 });
+                        } else {
+                            return temp;
+                        }
+                        /*let start = performance.now();
                             while(stopProcessing === false) {
                                 url = url.split("&from=")[0] + `&from=${from}`;
                                 console.log(url);
@@ -296,7 +308,7 @@ class Zoho {
                                 }
                                 return temp;
                             }(allRecords);
-                        return returnRecords;
+                        return returnRecords;*/
                     } else {
                         const record = await this.zohoRequest(`${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}/${recordId}`, { 
                             headers: { 

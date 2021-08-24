@@ -2,6 +2,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const myob_routes = require("./routes/myob-routes.js");
+const zoho_routes = require("./routes/zoho-routes.js");
 // Initialize local environment variables
 dotenv.config();
 // Initiailize App
@@ -23,3 +24,4 @@ app.listen(process.env.PORT, async function() {
 });
 // Pass requests to myob
 app.use("/myob", myob_routes);
+app.use("/zoho", zoho_routes);
