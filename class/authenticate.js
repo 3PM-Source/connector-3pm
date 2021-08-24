@@ -35,9 +35,9 @@ class Authenticator {
             database: dbName,
             password: pass,
             port: port
-            /*ssl: {
+            ssl: {
                 rejectUnauthorized: false
-            }*/
+            }
         });
     }
 
