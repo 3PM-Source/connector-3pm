@@ -94,8 +94,8 @@ router.delete("/api/:applink/:reportlink/:options?", async (req, res, next) => {
         return;
     } else {
         try {
-            const records = await zoho.createRecords(req.params.applink, req.params.reportlink, req.body, auth, (req.params.options ? JSON.parse(req.params.options) : undefined) );
-            res.status(200).send(records);
+            const records = await zoho.deleteRecords(req.params.applink, req.params.reportlink, auth, (req.params.options ? JSON.parse(req.params.options) : undefined) );
+            res.status(200).send({ msg: records });
             return;
         } catch (error) {
             res.status(503).send(error.message);
