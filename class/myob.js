@@ -202,7 +202,7 @@ class MYOB {
                 throw new Error("Required parameters invalid or missing: either Company Uri, Database Client or methodType");
             }
             if((methodType === "PUT" && !contactId) || (methodType === "PUT" && !payload) || (methodType === "DELETE" && !contactId) ||
-                (methodType === "POST" && !payload) || (methodType === "DELETE" && contactType === "Contact") || (methodType === "POST" && contactType === "Contact")
+                (methodType === "POST" && !payload) || (methodType === "DELETE" && contactType === "CONTACT") || (methodType === "POST" && contactType === "CONTACT")
             ) {
                 throw new Error("Update, create or delete attempt without update body and/or contact id OR create attempt without valid contact type specified. Contact is not allowed when creating, updating or delete");
             }
