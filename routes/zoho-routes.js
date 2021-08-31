@@ -46,7 +46,7 @@ router.get("/api/:applink/:reportlink/:options?", async (req, res, next) => {
         return;
     } else {
         try {
-            const records = await zoho.getRecords(req.params.applink, req.params.reportlink, auth, (req.params.options ? JSON.parse(req.params.options) : undefined) );
+            const records = await zoho.getRecords(req.params.applink, req.params.reportlink, auth, (req.params.options ? JSON.parse(decodeURIComponent(req.params.options)) : undefined) );
             res.status(200).send(records);
             return;
         } catch (error) {
