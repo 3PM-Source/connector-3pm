@@ -247,6 +247,7 @@ class Zoho {
                 let allRecords = [];
                 let iterations = 0;*/
                     if(!recordId) {
+                        console.log("FILTER RECEIVED", filter);
                         let url = filter ? `${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}?criteria=${filter}&limit=200` : 
                         `${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}?limit=200`;
                         url = url.split("&from=")[0] + `&from=${from}`;
