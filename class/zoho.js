@@ -429,6 +429,7 @@ class Zoho {
             let recordsUpdated = [];
                 while(updateAlive) {
                     console.log("THE DATA = ", data);
+                    console.log("THE ACCESS TOKEN = ", tokens.access_token);
                     const temp = await this.zohoRequest(url, {
                         headers: {
                             Authorization: `Zoho-oauthtoken ${tokens.access_token}`
