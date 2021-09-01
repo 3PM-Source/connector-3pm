@@ -428,6 +428,7 @@ class Zoho {
             let updateAlive = true;
             let recordsUpdated = [];
                 while(updateAlive) {
+                    console.log("THE DATA = ", data);
                     const temp = await this.zohoRequest(url, {
                         headers: {
                             Authorization: `Zoho-oauthtoken ${tokens.access_token}`
@@ -435,6 +436,7 @@ class Zoho {
                         method: "PATCH",
                         body: JSON.stringify(data)
                     }, "json", dbClient);
+                    console.log("RAW RESPONSE =", temp);
                         if(!temp.hasOwnProperty("more_records")) {
                             if(!temp.hasOwnProperty("result")) {
                                 return temp["data"];
