@@ -258,7 +258,8 @@ class Zoho {
                         }, "JSON", dbClient);
                         //from+=200;
                         if(temp.hasOwnProperty("data")) {
-                            return ({ records: temp["data"], nextRowsFrom: from+=200 });
+                            from = from % 2 === 0 ? from+201 : from+200;
+                            return ({ records: temp["data"], nextRowsFrom: from });
                         } else {
                             return temp;
                         }
