@@ -62,7 +62,7 @@ router.post("/api/:applink/:formlink/:options?", async (req, res, next) => {
         return;
     } else {
         try {
-            const records = await zoho.createRecords(req.params.applink, req.params.formlink, req.body, auth, (req.params.options ? JSON.parse(req.params.options) : undefined) );
+            const records = await zoho.createRecords(req.params.applink, req.params.formlink, req.body, auth, (req.params.options ? JSON.parse(decodeURIComponent(req.params.options)) : undefined) );
             res.status(200).send(records);
             return;
         } catch (error) {
@@ -78,7 +78,7 @@ router.put("/api/:applink/:reportlink/:options?", async (req, res, next) => {
         return;
     } else {
         try {
-            const records = await zoho.updateRecords(req.params.applink, req.params.reportlink, req.body, auth, (req.params.options ? JSON.parse(req.params.options) : undefined) );
+            const records = await zoho.updateRecords(req.params.applink, req.params.reportlink, req.body, auth, (req.params.options ? JSON.parse(decodeURIComponent(req.params.options)) : undefined) );
             res.status(200).send(records);
             return;
         } catch (error) {
@@ -94,7 +94,7 @@ router.delete("/api/:applink/:reportlink/:options?", async (req, res, next) => {
         return;
     } else {
         try {
-            const records = await zoho.deleteRecords(req.params.applink, req.params.reportlink, auth, (req.params.options ? JSON.parse(req.params.options) : undefined) );
+            const records = await zoho.deleteRecords(req.params.applink, req.params.reportlink, auth, (req.params.options ? JSON.parse(decodeURIComponent(req.params.options)) : undefined) );
             res.status(200).send({ msg: records });
             return;
         } catch (error) {
