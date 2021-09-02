@@ -248,7 +248,7 @@ class Zoho {
                 let allRecords = [];
                 let iterations = 0;*/
                     if(!recordId) {
-                        let url = filter ? `${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}?${encodeURIComponent(`criteria=${filter}`)}&limit=200` : 
+                        let url = filter ? `${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}?criteria=${filter}&limit=200` : 
                         `${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}?limit=200`;
                         url = url.split("&from=")[0] + `&from=${from}`;
                         let temp = await this.zohoRequest(url, { 
