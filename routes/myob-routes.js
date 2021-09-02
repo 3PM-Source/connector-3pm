@@ -138,7 +138,7 @@ router.get("/api/accounts/:companyuri/:id?", async (req, res, next) => {
         return;
     } else {
         try {
-            const accounts = await myob.accounts(req.params.companyuri, auth, "GET", { payload: undefined, accountId: req.params.id });
+            const accounts = await myob.accounts(req.params.companyuri, auth, "GET", { accountId: req.params.id });
             res.status(200).send(accounts);
             return;
         } catch (error) {
