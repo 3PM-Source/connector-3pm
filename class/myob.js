@@ -43,6 +43,7 @@ class MYOB {
             }
         console.time("To make the request");
         const request = await fetch(url, options).then(async (resp) => {
+            console.log("DEBUG = ", request);
             if(resp.ok) {
                 switch(responseType.toUpperCase()) {
                     case "JSON":
