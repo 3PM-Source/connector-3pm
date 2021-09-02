@@ -162,7 +162,7 @@ router.get("/api/taxCodes/:companyuri/:id?", async (req, res, next) => {
         return;
     } else {
         try {
-            const taxCodes = await myob.taxCode(req.params.companyuri, auth, "GET", { payload: undefined, taxCodeId: req.params.id });
+            const taxCodes = await myob.taxCode(req.params.companyuri, auth, "GET", { taxCodeId: req.params.id });
             res.status(200).send(taxCodes);
             return;
         } catch (error) {
