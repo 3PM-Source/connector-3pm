@@ -35,6 +35,7 @@ class Zoho {
                 const authorize = await this.getAuthorizationCode();
                 return authorize;
             }
+            console.log("REQUEST URL=", url);
             const request = await fetch(url, options).then(async (resp) => {
                     if(resp.ok) {
                         const returnResp = async function(type) { 
