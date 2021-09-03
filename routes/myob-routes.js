@@ -93,6 +93,7 @@ router.post("/api/contacts/:companyuri/:type", async (req, res, next) => {
         return;
     } else {
         try {
+            console.log("PAYLOAD", req.body);
             const contact = await myob.contacts(req.params.companyuri, auth, "POST", req.params.type, req.params.id, req.body);
             res.status(200).send(contact);
             return;
