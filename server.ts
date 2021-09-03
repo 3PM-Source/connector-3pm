@@ -9,7 +9,7 @@ dotenv.config();
 const app = express();
 // Usage configuration
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json( [{ limit: "150mb" }] ));
+app.use(express.json( { limit: "150mb" } ));
 // CORS
 app.use(function(req, res, next) {
     req.header("Access-Control-Allow-Origin", "*");
