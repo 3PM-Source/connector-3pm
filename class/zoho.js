@@ -347,10 +347,11 @@ class Zoho {
                             batchPayload[nestedArrayIndex][0]["data"].push(payload[x]);
                         }
                     }
-                console.log("BATCHPAYLOAD = ", batchPayload[0], "SIZE = ", batchPayload.length);
             } else {
                 batchPayload = [[{ data: payload, result: { fields: includeFields , tasks: includeTasks }}]];
             }
+            console.log("PAYLOAD = ", payload[0], "SIZE = ", payload.length);
+            console.log("BATCHPAYLOAD = ", batchPayload[0], "SIZE = ", batchPayload.length);
             const tokens = (await dbClient.getOAuth2Token("zoho_oauth2_tokens"))["oauth_token"]; //JSON.parse(await openFile(this.tokensPath));
             let start = performance.now();
             let created = [];
