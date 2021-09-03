@@ -347,6 +347,7 @@ class Zoho {
                             batchPayload[nestedArrayIndex][0]["data"].push(payload[x]);
                         }
                     }
+                console.log("BATCHPAYLOAD = ", batchPayload[0], "SIZE = ", batchPayload.length);
             } else {
                 batchPayload = [[{ data: payload, result: { fields: includeFields , tasks: includeTasks }}]];
             }
