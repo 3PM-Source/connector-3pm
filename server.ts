@@ -18,6 +18,8 @@ app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, tokenid, timestamp, X-Requested-With");
     next();
 });
+// Set payload limit
+app.use(express.bodyParser({ limit: "150mb" }));
 // Start the server
 app.listen(process.env.PORT, async function() {
     console.log("Listening on port " + process.env.PORT + ", " + process.env.MODE + " server ready...");
