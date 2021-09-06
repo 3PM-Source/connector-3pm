@@ -330,7 +330,7 @@ class Zoho {
         const includeFields = options && options.hasOwnProperty("fields") ? options["fields"] : [];
         const includeTasks = options && options.hasOwnProperty("tasks") ? options["tasks"] : true;
         if( !appLinkName || !formLinkName || !payload || typeof appLinkName !== "string" || typeof formLinkName !== "string" || !Array.isArray(payload)
-            || (!Array.isArray(includeFields) && includeTasks !== true && includeTasks !== false) 
+            || !Array.isArray(includeFields) && (includeTasks !== true && includeTasks !== false) 
             || !dbClient
         ) {
             throw new Error("Invalid arguments or argument types");
@@ -349,7 +349,7 @@ class Zoho {
                         }
                     }
             } else {
-                batchPayload.push(new Array({ data: payload, result: { fields: includeFields, tasks: includeTasks }}));
+                batchPayload = [[{ data: payload, result: { fields: includeFields, tasks: includeTasks }}]];
             }
             console.log("BATCHPAYLOAD = ", util.inspect(batchPayload, { depth: null}));
             const tokens = (await dbClient.getOAuth2Token("zoho_oauth2_tokens"))["oauth_token"]; //JSON.parse(await openFile(this.tokensPath));
