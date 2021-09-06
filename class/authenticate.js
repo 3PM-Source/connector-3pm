@@ -29,7 +29,16 @@ class Authenticator {
         this.keyLength = 64;
         this.iterations = 50000;
         this.digest = "sha512";
-        this.pool = new Pool({
+        this.pool = process.env.MODE === "PRODUCTION" ? new Pool({
+            user: dbUser,
+            host: host,
+            database: dbName,
+            password: pass,
+            port: port,
+            ssl: {
+                rejectUnauthorized: false
+            }
+        }) : new Pool({
             user: dbUser,
             host: host,
             database: dbName,
