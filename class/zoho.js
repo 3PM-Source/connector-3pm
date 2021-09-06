@@ -389,7 +389,6 @@ class Zoho {
             let temp = [];
                 for(let x = 0; x < rows.length; x++) {
                     if(rows[x].hasOwnProperty("value")) {
-                        console.log(util.inspect(rows[x]["value"], { depth: null}));
                         if(rows[x]["value"].hasOwnProperty("result")) {
                             for(let y = 0; y < rows[x]["value"]["result"].length; y++) {
                                 temp.push(rows[x]["value"]["result"][y]);
