@@ -349,7 +349,7 @@ class Zoho {
                         }
                     }
             } else {
-                batchPayload = [[{ data: payload, result: { fields: includeFields, tasks: includeTasks }}]];
+                batchPayload.push(new Array({ data: payload, result: { fields: includeFields, tasks: includeTasks }}));
             }
             console.log("BATCHPAYLOAD = ", util.inspect(batchPayload, { depth: null}));
             const tokens = (await dbClient.getOAuth2Token("zoho_oauth2_tokens"))["oauth_token"]; //JSON.parse(await openFile(this.tokensPath));
