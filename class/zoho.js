@@ -341,13 +341,13 @@ class Zoho {
                     for(let x = 0; x < payload.length; x++) {
                         if(x === 0) {
                             //batchPayload.push(new Array({ data: [payload[x]], result: { fields: includeFields, tasks: includeTasks } }));
-                            batchPayload.push(new Array({ data: [ { ...payload[x], result: { fields: includeFields, tasks: includeTasks } }] }));
+                            batchPayload.push({ data: [{ ...payload[x], result: { fields: includeFields, tasks: includeTasks } }] });
                         } else if(x % 200 === 0) {
                             nestedArrayIndex++;
                             //batchPayload.push(new Array({ data: [payload[x]], result: { fields: includeFields, tasks: includeTasks } }));
-                            batchPayload.push(new Array({ data: [ { ...payload[x], result: { fields: includeFields, tasks: includeTasks } }] }));
+                            batchPayload.push({ data: [{ ...payload[x], result: { fields: includeFields, tasks: includeTasks } }] });
                         } else if (x % 200 !== 0) {
-                            batchPayload[nestedArrayIndex][0]["data"].push({ ...payload[x], result: { fields: includeFields, tasks: includeTasks } });
+                            batchPayload[nestedArrayIndex]["data"].push({ ...payload[x], result: { fields: includeFields, tasks: includeTasks } });
                         }
                     }
             /*} else {
