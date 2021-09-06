@@ -340,16 +340,19 @@ class Zoho {
                 let nestedArrayIndex = 0;
                     for(let x = 0; x < payload.length; x++) {
                         if(x === 0) {
-                            batchPayload.push(new Array({ data: [payload[x]], result: { fields: includeFields, tasks: includeTasks } }));
+                            //batchPayload.push(new Array({ data: [payload[x]], result: { fields: includeFields, tasks: includeTasks } }));
+                            batchPayload.push(new Array(payload[x]));
                         } else if(x % 200 === 0) {
                             nestedArrayIndex++;
-                            batchPayload.push(new Array({ data: [payload[x]], result: { fields: includeFields, tasks: includeTasks } }));
+                            //batchPayload.push(new Array({ data: [payload[x]], result: { fields: includeFields, tasks: includeTasks } }));
+                            batchPayload.push(new Array(payload[x]));
                         } else if (x % 200 !== 0) {
-                            batchPayload[nestedArrayIndex][0]["data"].push(payload[x]);
+                            //batchPayload[nestedArrayIndex][0]["data"].push(payload[x]);
+                            batchPayload[nestedArrayIndex].push(payload[x]);
                         }
                     }
             } else {
-                batchPayload = [[{ data: payload, result: { fields: includeFields, tasks: includeTasks }}]];
+                batchPayload = [payload]; //[[{ data: payload, result: { fields: includeFields, tasks: includeTasks }}]];
             }
             console.log("BATCHPAYLOAD = ", util.inspect(batchPayload, { depth: null}));
             const tokens = (await dbClient.getOAuth2Token("zoho_oauth2_tokens"))["oauth_token"]; //JSON.parse(await openFile(this.tokensPath));
@@ -362,7 +365,7 @@ class Zoho {
                             Authorization: `Zoho-oauthtoken ${tokens["access_token"]}`
                         },
                         method: "POST",
-                        body: JSON.stringify(batchPayload[i][0])
+                        body: JSON.stringify({ data: batchPayload[i], fields: includeFields, tasks: includeTasks})
                     }, "JSON", dbClient));
                 } else {
                     console.log("i % 50 === 0 is", i % 50 === 0);
@@ -377,7 +380,7 @@ class Zoho {
                                 Authorization: `Zoho-oauthtoken ${tokens["access_token"]}`
                             },
                             method: "POST",
-                            body: JSON.stringify(batchPayload[i])
+                            body: JSON.stringify({ data: batchPayload[i], fields: includeFields, tasks: includeTasks})
                         }, "JSON", dbClient));
                     start = performance.now();
                 }
