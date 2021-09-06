@@ -375,7 +375,7 @@ class Zoho {
                                 Authorization: `Zoho-oauthtoken ${tokens["access_token"]}`
                             },
                             method: "POST",
-                            body: JSON.stringify(batchPayload[i][0])
+                            body: JSON.stringify(batchPayload[i])
                         }, "JSON", dbClient));
                     start = performance.now();
                 }
