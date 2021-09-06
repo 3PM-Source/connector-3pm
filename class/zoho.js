@@ -336,37 +336,33 @@ class Zoho {
             throw new Error("Invalid arguments or argument types");
         }
         let batchPayload = [];
-            if(payload.length > 200) {
+            //if(payload.length > 200) {
                 let nestedArrayIndex = 0;
                     for(let x = 0; x < payload.length; x++) {
                         if(x === 0) {
-                            //batchPayload.push(new Array({ data: [payload[x]], result: { fields: includeFields, tasks: includeTasks } }));
-                            batchPayload.push(new Array(payload[x]));
+                            batchPayload.push(new Array({ data: [payload[x]], result: { fields: includeFields, tasks: includeTasks } }));
                         } else if(x % 200 === 0) {
                             nestedArrayIndex++;
-                            //batchPayload.push(new Array({ data: [payload[x]], result: { fields: includeFields, tasks: includeTasks } }));
-                            batchPayload.push(new Array(payload[x]));
+                            batchPayload.push(new Array({ data: [payload[x]], result: { fields: includeFields, tasks: includeTasks } }));
                         } else if (x % 200 !== 0) {
-                            //batchPayload[nestedArrayIndex][0]["data"].push(payload[x]);
-                            batchPayload[nestedArrayIndex].push(payload[x]);
+                            batchPayload[nestedArrayIndex][0]["data"].push(payload[x]);
                         }
                     }
-            } else {
-                batchPayload = [payload]; //[[{ data: payload, result: { fields: includeFields, tasks: includeTasks }}]];
-            }
+            /*} else {
+                batchPayload = [[{ data: payload, result: { fields: includeFields, tasks: includeTasks }}]];
+            }*/
             console.log("BATCHPAYLOAD = ", util.inspect(batchPayload, { depth: null}));
             const tokens = (await dbClient.getOAuth2Token("zoho_oauth2_tokens"))["oauth_token"]; //JSON.parse(await openFile(this.tokensPath));
             let start = performance.now();
             let created = [];
             for(let i = 0; i < batchPayload.length; i++) {
                 if(i % 50 !== 0 || i === 0) {
-                    console.log("PAYLOAD = ", JSON.stringify({ data: batchPayload[i], result: { fields: includeFields, tasks: includeTasks } }));
                     created.push(this.zohoRequest(`${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/form/${formLinkName}`, {
                         headers: {
                             Authorization: `Zoho-oauthtoken ${tokens["access_token"]}`
                         },
                         method: "POST",
-                        body: JSON.stringify({ data: batchPayload[i], result: { fields: includeFields, tasks: includeTasks } })
+                        body: JSON.stringify(batchPayload[i][0])
                     }, "JSON", dbClient));
                 } else {
                     console.log("i % 50 === 0 is", i % 50 === 0);
@@ -376,13 +372,12 @@ class Zoho {
                             console.log("Sleeping for", ((60000 - difference) / (1000 * 60)).toFixed(2), "minutes","start was at", start, "resetting start");
                             await this.sleep((60000 - difference));
                         }
-                        console.log("PAYLOAD = ", JSON.stringify({ data: batchPayload[i], result: { fields: includeFields, tasks: includeTasks } }));
                         created.push(this.zohoRequest(`${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/form/${formLinkName}`, {
                             headers: {
                                 Authorization: `Zoho-oauthtoken ${tokens["access_token"]}`
                             },
                             method: "POST",
-                            body: JSON.stringify({ data: batchPayload[i], result: { fields: includeFields, tasks: includeTasks } })
+                            body: JSON.stringify(batchPayload[i])
                         }, "JSON", dbClient));
                     start = performance.now();
                 }
