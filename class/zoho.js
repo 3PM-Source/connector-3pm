@@ -6,6 +6,7 @@
 const fetch = require("node-fetch");
 //const { saveFile, openFile } = require("../helpers/FileOps");
 const { performance } = require("perf_hooks");
+const util = require("util");
 
 class Zoho {
     constructor(clientId, clientSecret, scope, redirectUri, baseUri, accountOwnerName, optionalArgs = { accessType: "offline", prompt: "consent" }) {
@@ -350,7 +351,7 @@ class Zoho {
             } else {
                 batchPayload = [[{ data: payload, result: { fields: includeFields, tasks: includeTasks }}]];
             }
-            console.log("BATCHPAYLOAD = ", batchPayload);
+            console.log("BATCHPAYLOAD = ", util.inspect(batchPayload, { depth: null}));
             const tokens = (await dbClient.getOAuth2Token("zoho_oauth2_tokens"))["oauth_token"]; //JSON.parse(await openFile(this.tokensPath));
             let start = performance.now();
             let created = [];
