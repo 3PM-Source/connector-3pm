@@ -326,8 +326,8 @@ class Zoho {
     }
 
     async createRecords(appLinkName, formLinkName, payload, dbClient, options = { fields: [], tasks: true }) {
-        const includeFields = options.hasOwnProperty("fields") ? options["fields"] : [];
-        const includeTasks = options.hasOwnProperty("tasks") ? options["tasks"] : true;
+        const includeFields = options && options.hasOwnProperty("fields") ? options["fields"] : [];
+        const includeTasks = options && options.hasOwnProperty("tasks") ? options["tasks"] : true;
         if( !appLinkName || !formLinkName || !payload || typeof appLinkName !== "string" || typeof formLinkName !== "string" || !Array.isArray(payload)
             || (!Array.isArray(includeFields) && includeTasks !== true && includeTasks !== false) 
             || !dbClient
@@ -375,7 +375,7 @@ class Zoho {
                                 Authorization: `Zoho-oauthtoken ${tokens["access_token"]}`
                             },
                             method: "POST",
-                            body: JSON.stringify(batchPayload[i])
+                            body: JSON.stringify(batchPayload[i][0])
                         }, "JSON", dbClient));
                     start = performance.now();
                 }
