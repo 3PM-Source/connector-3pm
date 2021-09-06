@@ -358,6 +358,7 @@ class Zoho {
             const tokens = (await dbClient.getOAuth2Token("zoho_oauth2_tokens"))["oauth_token"]; //JSON.parse(await openFile(this.tokensPath));
             let start = performance.now();
             let created = [];
+            let innerIndex = 0;
             for(let i = 0; i < batchPayload.length; i++) {
                 if(i % 50 !== 0 || i === 0) {
                     created.push(this.zohoRequest(`${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/form/${formLinkName}`, {
@@ -365,8 +366,9 @@ class Zoho {
                             Authorization: `Zoho-oauthtoken ${tokens["access_token"]}`
                         },
                         method: "POST",
-                        body: JSON.stringify({ data: batchPayload[i], fields: includeFields, tasks: includeTasks})
+                        body: JSON.stringify({ data: batchPayload[i][innerIndex], fields: includeFields, tasks: includeTasks})
                     }, "JSON", dbClient));
+                    innerIndex++;
                 } else {
                     console.log("i % 50 === 0 is", i % 50 === 0);
                     await Promise.allSettled(created);
@@ -380,8 +382,9 @@ class Zoho {
                                 Authorization: `Zoho-oauthtoken ${tokens["access_token"]}`
                             },
                             method: "POST",
-                            body: JSON.stringify({ data: batchPayload[i], fields: includeFields, tasks: includeTasks})
+                            body: JSON.stringify({ data: batchPayload[i][innerIndex], fields: includeFields, tasks: includeTasks})
                         }, "JSON", dbClient));
+                    innerIndex++;
                     start = performance.now();
                 }
             }
