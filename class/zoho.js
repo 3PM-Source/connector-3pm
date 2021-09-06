@@ -358,9 +358,9 @@ class Zoho {
             const tokens = (await dbClient.getOAuth2Token("zoho_oauth2_tokens"))["oauth_token"]; //JSON.parse(await openFile(this.tokensPath));
             let start = performance.now();
             let created = [];
-            console.log("PAYLOAD = ", JSON.stringify({ data: batchPayload[i], result: { fields: includeFields, tasks: includeTasks } }));
             for(let i = 0; i < batchPayload.length; i++) {
                 if(i % 50 !== 0 || i === 0) {
+                    console.log("PAYLOAD = ", JSON.stringify({ data: batchPayload[i], result: { fields: includeFields, tasks: includeTasks } }));
                     created.push(this.zohoRequest(`${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/form/${formLinkName}`, {
                         headers: {
                             Authorization: `Zoho-oauthtoken ${tokens["access_token"]}`
@@ -376,6 +376,7 @@ class Zoho {
                             console.log("Sleeping for", ((60000 - difference) / (1000 * 60)).toFixed(2), "minutes","start was at", start, "resetting start");
                             await this.sleep((60000 - difference));
                         }
+                        console.log("PAYLOAD = ", JSON.stringify({ data: batchPayload[i], result: { fields: includeFields, tasks: includeTasks } }));
                         created.push(this.zohoRequest(`${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/form/${formLinkName}`, {
                             headers: {
                                 Authorization: `Zoho-oauthtoken ${tokens["access_token"]}`
