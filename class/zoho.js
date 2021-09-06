@@ -354,7 +354,6 @@ class Zoho {
             /*} else {
                 batchPayload = [[{ data: payload, result: { fields: includeFields, tasks: includeTasks }}]];
             }*/
-            console.log("BATCHPAYLOAD = ", util.inspect(batchPayload, { depth: null}));
             const tokens = (await dbClient.getOAuth2Token("zoho_oauth2_tokens"))["oauth_token"]; //JSON.parse(await openFile(this.tokensPath));
             let start = performance.now();
             let created = [];
@@ -390,7 +389,7 @@ class Zoho {
             let temp = [];
                 for(let x = 0; x < rows.length; x++) {
                     if(rows[x].hasOwnProperty("value")) {
-                        console.log(util.inspect(rows[x]["value"]));
+                        console.log(util.inspect(rows[x]["value"], { depth: null}));
                         if(rows[x]["value"].hasOwnProperty("result")) {
                             for(let y = 0; y < rows[x]["value"]["result"].length; y++) {
                                 temp.push(rows[x]["value"]["result"][y]);
