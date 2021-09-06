@@ -340,10 +340,12 @@ class Zoho {
                 let nestedArrayIndex = 0;
                     for(let x = 0; x < payload.length; x++) {
                         if(x === 0) {
-                            batchPayload.push(new Array({ data: [payload[x]], result: { fields: includeFields, tasks: includeTasks } }));
+                            //batchPayload.push(new Array({ data: [payload[x]], result: { fields: includeFields, tasks: includeTasks } }));
+                            batchPayload.push(new Array({ data: { ...payload[x], result: { fields: includeFields, tasks: includeTasks } } }));
                         } else if(x % 200 === 0) {
                             nestedArrayIndex++;
-                            batchPayload.push(new Array({ data: [payload[x]], result: { fields: includeFields, tasks: includeTasks } }));
+                            //batchPayload.push(new Array({ data: [payload[x]], result: { fields: includeFields, tasks: includeTasks } }));
+                            batchPayload.push(new Array({ data: { ...payload[x], result: { fields: includeFields, tasks: includeTasks } } }));
                         } else if (x % 200 !== 0) {
                             batchPayload[nestedArrayIndex][0]["data"].push(payload[x]);
                         }
@@ -362,7 +364,7 @@ class Zoho {
                             Authorization: `Zoho-oauthtoken ${tokens["access_token"]}`
                         },
                         method: "POST",
-                        body: JSON.stringify(batchPayload[i][0])
+                        body: JSON.stringify(batchPayload[i])
                     }, "JSON", dbClient));
                 } else {
                     console.log("i % 50 === 0 is", i % 50 === 0);
