@@ -230,7 +230,7 @@ class MYOB {
                     }
                     if(methodType === "GET" && !contactId) {
                         tempUrl += "?$top=1000&returnBody=true";
-                    } else {
+                    } else if(methodType === "GET") {
                         tempUrl += "?returnBody=true";
                     }
                 } else {
@@ -275,7 +275,6 @@ class MYOB {
                     return returnAllContacts;*/
                 } else {
                     if(methodType === "POST" || methodType === "PUT") {
-                        console.log("URI", url);
                         const contact = await this.myobRequest(url, { method: methodType, body: JSON.stringify(payload) }, client, "json");
                         return contact;
                     } else if(methodType === "DELETE") {
