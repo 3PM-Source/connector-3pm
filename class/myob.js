@@ -43,7 +43,6 @@ class MYOB {
             }
         console.time("To make the request");
         const request = await fetch(url, options).then(async (resp) => {
-            console.log("RAW RESP", resp);
             if(resp.ok) {
                 switch(responseType.toUpperCase()) {
                     case "JSON":
@@ -532,9 +531,10 @@ class MYOB {
 }
 
 async function test() {
+    const nodeENV = require("dotenv").config();
     const myob = new MYOB("mk9bjaacyce26h9e22nrwzex", "wNShWNuhQ79PYqR6FqQ8NE5a", "https://myob.easyforms.tech/authCode", "https://secure.myob.com");
     const Authenticator = require("./authenticate");
-    const dbConnection = new Authenticator("postgres", "localhost", "connect3pm", "thisIs3PM@2021", 5432);
+    const dbConnection = new Authenticator("postgres", "localhost", "connect3pm", "thisIs3pm2021", 5432);
     try {
         //console.log(myob);
         //console.log("Authorization Url", await myob.getAuthorizationCode());
@@ -547,8 +547,8 @@ async function test() {
         //console.time("Time to Fetch all 631 contacts");
         
         // console.time("Fetch all contacts");
-        // const allContacts = await myob.contacts(Uri, dbConnection, "GET", "ALL");
-        // console.log("ALL CONTACTS", allContacts);
+        //const allContacts = await myob.contacts("https://ar2.api.myob.com/accountright/46c57496-a228-4af6-bbc5-821424603345", dbConnection, "GET", "Customer", "b1ff5853-ef51-4267-95f7-368039476d79");
+        //console.log("CONTACT", allContacts);
         // console.timeEnd("Fetch all contacts");
         
         //console.log(`Found ${allContacts.length} contacts`);
