@@ -520,6 +520,9 @@ class MYOB {
                         return returnAllInvoices;*/
                     } else {
                         if(methodType === "POST" || methodType === "PUT") {
+                                if(methodType === "PUT") {
+                                    payload["UID"] = invoiceId;
+                                }
                             const invoices = await this.myobRequest(url, { method: methodType, body: JSON.stringify(payload) }, client, "json");
                             return invoices;
                         } else if (methodType === "DELETE") {
