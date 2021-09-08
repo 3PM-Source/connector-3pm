@@ -230,7 +230,7 @@ class MYOB {
                     }
                     if(methodType === "GET" && !contactId) {
                         tempUrl += "?$top=1000&returnBody=true";
-                    } else {
+                    } else if(methodType !== "PUT" && !methodType !== "DELETE") {
                         tempUrl += "?returnBody=true";
                     }
                 } else {
