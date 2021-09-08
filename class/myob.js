@@ -43,7 +43,6 @@ class MYOB {
             }
         console.time("To make the request");
         const request = await fetch(url, options).then(async (resp) => {
-            console.log("RAW RESP", resp);
             if(resp.ok) {
                 switch(responseType.toUpperCase()) {
                     case "JSON":
@@ -231,7 +230,7 @@ class MYOB {
                     }
                     if(methodType === "GET" && !contactId) {
                         tempUrl += "?$top=1000&returnBody=true";
-                    } else {
+                    } else if(methodType !== "PUT" && methodType !== "DELETE") {
                         tempUrl += "?returnBody=true";
                     }
                 } else {
@@ -279,7 +278,6 @@ class MYOB {
                         if(methodType === "PUT") {
                             payload["UID"] = contactId;
                         }
-                        console.log(payload);
                         const contact = await this.myobRequest(url, { method: methodType, body: JSON.stringify(payload) }, client, "json");
                         return contact;
                     } else if(methodType === "DELETE") {
