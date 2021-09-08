@@ -457,7 +457,7 @@ class MYOB {
         const invoiceId = optionalArgs.hasOwnProperty("invoiceId") ? optionalArgs["invoiceId"] : undefined;
         const payload = optionalArgs.hasOwnProperty("payload") ? optionalArgs["payload"] : undefined;
         const invoiceType = optionalArgs.hasOwnProperty("invoiceType") ? optionalArgs["invoiceType"].toUpperCase() : "ALL";
-            if(invoiceType !== "SERVICE" && invoiceType !== "ALL") {
+            if(invoiceType !== "SERVICE" && invoiceType !== "ALL" && invoiceType !== "ITEM" && invoiceType !== "PROFESSIONAL" && invoiceType !== "TIMEBILLING" && invoiceType !== "MISCELLANEOUS" && invoiceType !== "ORDER" && invoiceType !== "QUOTE") {
                 throw new Error("Unrecognized or unimplemented invoice type!");
             }
             if(
