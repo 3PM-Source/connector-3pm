@@ -275,6 +275,7 @@ class MYOB {
                     return returnAllContacts;*/
                 } else {
                     if(methodType === "POST" || methodType === "PUT") {
+                        console.log("URI", url);
                         const contact = await this.myobRequest(url, { method: methodType, body: JSON.stringify(payload) }, client, "json");
                         return contact;
                     } else if(methodType === "DELETE") {
