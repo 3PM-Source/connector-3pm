@@ -226,7 +226,7 @@ class MYOB {
                                 throw new Error("Unrecognized contact type");
                         }
                     }(cType);
-                    if(contactId && (methodType !== "PUT" && methodType !== "DELETE")) {
+                    if(contactId) {
                         tempUrl += `/${contactId}`;
                     }
                     if(methodType === "GET" && !contactId) {
