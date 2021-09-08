@@ -225,12 +225,12 @@ class MYOB {
                                 throw new Error("Unrecognized contact type");
                         }
                     }(cType);
-                    if(contactId) {
+                    if(contactId && (methodType !== "PUT" && methodType !== "DELETE")) {
                         tempUrl += `/${contactId}`;
                     }
                     if(methodType === "GET" && !contactId) {
                         tempUrl += "?$top=1000&returnBody=true";
-                    } else if(methodType !== "PUT" && !methodType !== "DELETE") {
+                    } else {
                         tempUrl += "?returnBody=true";
                     }
                 } else {
@@ -275,6 +275,9 @@ class MYOB {
                     return returnAllContacts;*/
                 } else {
                     if(methodType === "POST" || methodType === "PUT") {
+                        if(methodType === "PUT") {
+                            payload["UID"] = contactId;
+                        }
                         const contact = await this.myobRequest(url, { method: methodType, body: JSON.stringify(payload) }, client, "json");
                         return contact;
                     } else if(methodType === "DELETE") {
