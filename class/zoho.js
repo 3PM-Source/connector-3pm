@@ -238,7 +238,7 @@ class Zoho {
         const filter = optionalArgs && optionalArgs.hasOwnProperty("filter") ? optionalArgs["filter"] : undefined;
         const recordId = optionalArgs && optionalArgs.hasOwnProperty("recordId") ? optionalArgs["recordId"] : undefined;
         let from = optionalArgs && optionalArgs.hasOwnProperty("from") ? optionalArgs["from"] : 0;
-        const baseUri = optionalArgs && optionalArgs.hasOwnProperty("baseUri") ? `https://${optionalArgs["baseUri"]}` : `https://creator.zoho.com/threepmnz`;
+        const baseUri = optionalArgs && optionalArgs.hasOwnProperty("baseUri") ? `https://${decodeURIComponent(optionalArgs["baseUri"])}` : `https://creator.zoho.com/threepmnz`;
             if( !appLinkName || !reportLinkName || typeof appLinkName !== "string" || typeof reportLinkName !== "string" || 
                 (recordId && typeof recordId !== "string") || !dbClient
             ) {
@@ -330,7 +330,7 @@ class Zoho {
     async createRecords(appLinkName, formLinkName, payload, dbClient, options = { fields: [], tasks: true, baseUri: "creator.zoho.com/threepmnz" }) {
         const includeFields = options && options.hasOwnProperty("fields") ? options["fields"] : [];
         const includeTasks = options && options.hasOwnProperty("tasks") ? options["tasks"] : true;
-        const baseUri = options && options.hasOwnProperty("baseUri") ? `https://${options["baseUri"]}` : `https://creator.zoho.com/threepmnz`;
+        const baseUri = options && options.hasOwnProperty("baseUri") ? `https://${decodeURIComponent(options["baseUri"])}` : `https://creator.zoho.com/threepmnz`;
         if( !appLinkName || !formLinkName || !payload || typeof appLinkName !== "string" || typeof formLinkName !== "string" || !Array.isArray(payload)
             || !Array.isArray(includeFields) && (includeTasks !== true && includeTasks !== false) 
             || !dbClient
@@ -408,7 +408,7 @@ class Zoho {
         const criteria = options.hasOwnProperty("criteria") ? options["criteria"] : undefined;
         const includeFields = options.hasOwnProperty("fields") ? options["fields"] : [];
         const includeTasks = options.hasOwnProperty("tasks") ? options["tasks"] : true;
-        const baseUri = options && options.hasOwnProperty("baseUri") ? `https://${options["baseUri"]}` : `https://creator.zoho.com/threepmnz`;
+        const baseUri = options && options.hasOwnProperty("baseUri") ? `https://${decodeURIComponent(options["baseUri"])}` : `https://creator.zoho.com/threepmnz`;
         if( !appLinkName || !reportLinkName || !payload || typeof appLinkName !== "string" || typeof payload !== "object"
         || typeof reportLinkName !== "string" || !Array.isArray(includeFields) && (includeTasks !== true && includeTasks !== false) ||
         (criteria && typeof criteria !== "string") || !dbClient
@@ -475,7 +475,7 @@ class Zoho {
         const recordId = options.hasOwnProperty("recordId") ? options["recordId"] : undefined;
         const criteria = options.hasOwnProperty("criteria") ? options["criteria"] : undefined;
         const includeTasks = options.hasOwnProperty("tasks") ? options["tasks"] : true;
-        const baseUri = options && options.hasOwnProperty("baseUri") ? `https://${options["baseUri"]}` : `https://creator.zoho.com/threepmnz`;
+        const baseUri = options && options.hasOwnProperty("baseUri") ? `https://${decodeURIComponent(options["baseUri"])}` : `https://creator.zoho.com/threepmnz`;
         if( !appLinkName || !reportLinkName || typeof appLinkName !== "string" || typeof reportLinkName !== "string" || 
         (includeTasks !== true && includeTasks !== false) || (criteria && typeof criteria !== "string") || !dbClient
         ) {
