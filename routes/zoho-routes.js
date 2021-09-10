@@ -41,7 +41,7 @@ router.get("/api/applications/:name?", async (req, res, next) => {
     DATA APIs
 /***************************************************************************************************************************** */
 router.get("/api/:applink/:reportlink/:options?", async (req, res, next) => {
-    if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${(decodeURIComponent(req.params.options)).hasOwnProperty("baseUri") ? decodeURIComponent((decodeURIComponent(req.params.options)).baseUri + req["url"]) : decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
+    if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
         res.status(403).send("Forbidden");
         return;
     } else {
@@ -57,7 +57,7 @@ router.get("/api/:applink/:reportlink/:options?", async (req, res, next) => {
 });
 
 router.post("/api/:applink/:formlink/:options?", async (req, res, next) => {
-    if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${(decodeURIComponent(req.params.options)).hasOwnProperty("baseUri") ? decodeURIComponent((decodeURIComponent(req.params.options)).baseUri + req["url"]) : decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
+    if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
         res.status(403).send("Forbidden");
         return;
     } else {
@@ -73,7 +73,7 @@ router.post("/api/:applink/:formlink/:options?", async (req, res, next) => {
 });
 
 router.put("/api/:applink/:reportlink/:options?", async (req, res, next) => {
-    if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${(decodeURIComponent(req.params.options)).hasOwnProperty("baseUri") ? decodeURIComponent((decodeURIComponent(req.params.options)).baseUri + req["url"]) : decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
+    if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
         res.status(403).send("Forbidden");
         return;
     } else {
@@ -89,7 +89,7 @@ router.put("/api/:applink/:reportlink/:options?", async (req, res, next) => {
 });
 
 router.delete("/api/:applink/:reportlink/:options?", async (req, res, next) => {
-    if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${(decodeURIComponent(req.params.options)).hasOwnProperty("baseUri") ? decodeURIComponent((decodeURIComponent(req.params.options)).baseUri + req["url"]) : decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
+    if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
         res.status(403).send("Forbidden");
         return;
     } else {
