@@ -234,10 +234,11 @@ class Zoho {
      * recordId: Passing a Zoho record ID will get a single record for the app and report link names specified.
      * @returns Array of Zoho Record Objects
      */
-    async getRecords(appLinkName, reportLinkName, dbClient, optionalArgs = { filter: undefined, recordId: undefined, from: 0 }) {
+    async getRecords(appLinkName, reportLinkName, dbClient, optionalArgs = { filter: undefined, recordId: undefined, from: 0, dataCenter: "us" }) {
         const filter = optionalArgs && optionalArgs.hasOwnProperty("filter") ? optionalArgs["filter"] : undefined;
         const recordId = optionalArgs && optionalArgs.hasOwnProperty("recordId") ? optionalArgs["recordId"] : undefined;
         let from = optionalArgs && optionalArgs.hasOwnProperty("from") ? optionalArgs["from"] : 0;
+        const dataCenter = optionalArgs && optionalArgs.hasOwnProperty("dataCenter") ? optionalArgs["dataCenter"] : "us";
             if( !appLinkName || !reportLinkName || typeof appLinkName !== "string" || typeof reportLinkName !== "string" || 
                 (recordId && typeof recordId !== "string") || !dbClient
             ) {
@@ -249,8 +250,8 @@ class Zoho {
                 let allRecords = [];
                 let iterations = 0;*/
                     if(!recordId) {
-                        let url = filter ? `${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}?criteria=${filter}&limit=200` : 
-                        `${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}?limit=200`;
+                        let url = filter ? `${dataCenter !== "us" ? this.baseUri.split(".com/").join(`.com.${dataCenter}`) : this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}?criteria=${filter}&limit=200` : 
+                        `${dataCenter !== "us" ? this.baseUri.split(".com/").join(`.com.${dataCenter}`) : this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}?limit=200`;
                         url = url.split("&from=")[0] + `&from=${from}`;
                         let temp = await this.zohoRequest(url, { 
                             headers: { 
@@ -313,7 +314,7 @@ class Zoho {
                             }(allRecords);
                         return returnRecords;*/
                     } else {
-                        const record = await this.zohoRequest(`${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}/${recordId}`, { 
+                        const record = await this.zohoRequest(`${dataCenter !== "us" ? this.baseUri.split(".com/").join(`.com.${dataCenter}`) : this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}/${recordId}`, { 
                             headers: { 
                                 Authorization: `Zoho-oauthtoken ${tokens["access_token"]}`
                             }, 
@@ -326,9 +327,10 @@ class Zoho {
                     }
     }
 
-    async createRecords(appLinkName, formLinkName, payload, dbClient, options = { fields: [], tasks: true }) {
+    async createRecords(appLinkName, formLinkName, payload, dbClient, options = { fields: [], tasks: true, dataCenter: "us" }) {
         const includeFields = options && options.hasOwnProperty("fields") ? options["fields"] : [];
         const includeTasks = options && options.hasOwnProperty("tasks") ? options["tasks"] : true;
+        const dataCenter = options && options.hasOwnProperty("dataCenter") ? options["dataCenter"] : "us";
         if( !appLinkName || !formLinkName || !payload || typeof appLinkName !== "string" || typeof formLinkName !== "string" || !Array.isArray(payload)
             || !Array.isArray(includeFields) && (includeTasks !== true && includeTasks !== false) 
             || !dbClient
@@ -359,7 +361,7 @@ class Zoho {
             let created = [];
             for(let i = 0; i < batchPayload.length; i++) {
                 if(i % 50 !== 0 || i === 0) {
-                    created.push(this.zohoRequest(`${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/form/${formLinkName}`, {
+                    created.push(this.zohoRequest(`${dataCenter !== "us" ? this.baseUri.split(".com/").join(`.com.${dataCenter}`) : this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/form/${formLinkName}`, {
                         headers: {
                             Authorization: `Zoho-oauthtoken ${tokens["access_token"]}`
                         },
@@ -374,7 +376,7 @@ class Zoho {
                             console.log("Sleeping for", ((60000 - difference) / (1000 * 60)).toFixed(2), "minutes","start was at", start, "resetting start");
                             await this.sleep((60000 - difference));
                         }
-                        created.push(this.zohoRequest(`${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/form/${formLinkName}`, {
+                        created.push(this.zohoRequest(`${dataCenter !== "us" ? this.baseUri.split(".com/").join(`.com.${dataCenter}`) : this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/form/${formLinkName}`, {
                             headers: {
                                 Authorization: `Zoho-oauthtoken ${tokens["access_token"]}`
                             },
@@ -401,11 +403,12 @@ class Zoho {
         return allCreated;
     }
 
-    async updateRecords(appLinkName, reportLinkName, payload, dbClient, options = { fields: [], tasks: true, recordId: undefined, criteria: undefined }) {
+    async updateRecords(appLinkName, reportLinkName, payload, dbClient, options = { fields: [], tasks: true, recordId: undefined, criteria: undefined, dataCenter: "us" }) {
         const recordId = options.hasOwnProperty("recordId") ? options["recordId"] : undefined;
         const criteria = options.hasOwnProperty("criteria") ? options["criteria"] : undefined;
         const includeFields = options.hasOwnProperty("fields") ? options["fields"] : [];
         const includeTasks = options.hasOwnProperty("tasks") ? options["tasks"] : true;
+        const dataCenter = options && options.hasOwnProperty("dataCenter") ? options["dataCenter"] : "us";
         if( !appLinkName || !reportLinkName || !payload || typeof appLinkName !== "string" || typeof payload !== "object"
         || typeof reportLinkName !== "string" || !Array.isArray(includeFields) && (includeTasks !== true && includeTasks !== false) ||
         (criteria && typeof criteria !== "string") || !dbClient
@@ -416,8 +419,8 @@ class Zoho {
             throw new Error("You cannot update multiple records and record by id at the same time");
         }
         // Set URL
-        const url = recordId ? `${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}/${recordId}` :
-        `${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}?process_until_limit=true`;
+        const url = recordId ? `${dataCenter !== "us" ? this.baseUri.split(".com/").join(`.com.${dataCenter}`) : this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}/${recordId}` :
+        `${dataCenter !== "us" ? this.baseUri.split(".com/").join(`.com.${dataCenter}`) : this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}?process_until_limit=true`;
         // Set data payload
         let data = {
             data: payload,
@@ -468,10 +471,11 @@ class Zoho {
         return recordsUpdated;
     }
 
-    async deleteRecords(appLinkName, reportLinkName, dbClient, options = { tasks: true, recordId: undefined, criteria: undefined }) {
+    async deleteRecords(appLinkName, reportLinkName, dbClient, options = { tasks: true, recordId: undefined, criteria: undefined, dataCenter: "us" }) {
         const recordId = options.hasOwnProperty("recordId") ? options["recordId"] : undefined;
         const criteria = options.hasOwnProperty("criteria") ? options["criteria"] : undefined;
         const includeTasks = options.hasOwnProperty("tasks") ? options["tasks"] : true;
+        const dataCenter = options && options.hasOwnProperty("dataCenter") ? options["dataCenter"] : "us";
         if( !appLinkName || !reportLinkName || typeof appLinkName !== "string" || typeof reportLinkName !== "string" || 
         (includeTasks !== true && includeTasks !== false) || (criteria && typeof criteria !== "string") || !dbClient
         ) {
@@ -481,8 +485,8 @@ class Zoho {
             throw new Error("You cannot delete multiple records and record by id at the same time");
         }
         // Set URL
-        const url = recordId ? `${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}/${recordId}` :
-        `${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}?process_until_limit=true`;
+        const url = recordId ? `${dataCenter !== "us" ? this.baseUri.split(".com/").join(`.com.${dataCenter}`) : this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}/${recordId}` :
+        `${dataCenter !== "us" ? this.baseUri.split(".com/").join(`.com.${dataCenter}`) : this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLinkName}?process_until_limit=true`;
         // Set data payload
         let data = {
             result: {

@@ -762,15 +762,22 @@ async function test() {
         const user = "postgres",
             host = "localhost",
             database = "connect3pm",
-            password = "thisIs3PM@2021",
+            password = "thisIs3pm2021",
             port = 5432;
         const auth = new Authenticator(user, host, database, password, port);
+        const secret = await auth.generateBearerToken(128);
+        //console.log(await auth.createUser("Keith Anderson", "STANDARD", "keith@3pm2021", "keith.anderson@3pm.nz"));
+        //console.log(await auth.createUser("Naveen Desilva", "STANDARD", "naveen@3pm2021", "naveen.desilva@3pm.nz"));
+        console.log(await auth.saveUserToken(secret, "35b0f2e82593d981708e1a722655e021"));
+
+        //const createKey = await auth.saveUserToken(secret, await auth.getUserById());
+
         //console.log(await auth.getUserTokens("04fe61ad431f9fe13d081de1f7ffaa02"));
-        const timestamp = moment().tz("Pacific/Auckland").format("x");
-        const encodedURI = encodeURIComponent("https://www.3pm.nz/api/myob/accounts");
-        console.log("Encoded URL", encodedURI);
-        console.log(timestamp);
-        console.log(await auth.verifySignature("13d5ff16f0dc8588aec0855912e43550", "YzRiOGFhMTZiNzllODQ1ZjY5Y2M0NzhlZjUwY2JlMmI3NWUzOTZhNzhiN2IyYjY5MzkzNWU5MDQxNjJmY2IzMw==", "GET", encodedURI, "1628736088059"));
+        //const timestamp = moment().tz("Pacific/Auckland").format("x");
+        //const encodedURI = encodeURIComponent("https://www.3pm.nz/api/myob/accounts");
+        //console.log("Encoded URL", encodedURI);
+        //console.log(timestamp);
+        //console.log(await auth.verifySignature("13d5ff16f0dc8588aec0855912e43550", "YzRiOGFhMTZiNzllODQ1ZjY5Y2M0NzhlZjUwY2JlMmI3NWUzOTZhNzhiN2IyYjY5MzkzNWU5MDQxNjJmY2IzMw==", "GET", encodedURI, "1628736088059"));
         //console.log(await auth.createSignedJWT("Test", "AJ", "admin", "In00KTwvWzA1JC00Zls5O2AzPTAkOSsuPy8oI1xcPSg8OWImXXw8QDlkNyMjKmYoPDg0KSklM2AwKC5hIjojJjxeL2A5PVxeXnw3NDw8ZmYhZi80KTEpIj0tYlw9NHx8JTIrMyM5Zl8kPC5mOCIofmI8YXw6Mjp7IjdmKWYwJSJhJV4jLHsrYTQ8YipbMWJfLVtiOyQlOlwoez8mLCVbPTkkLkAlMy8+KlwkPC0hKH41JC5gLF8/YDUjNzt9IVshZCQmOzA6OztmXTEsZV8uYytAXT9bZC0rQH49N10/Pl8oMGIqQGNAOjQpOTwvIj9dK1wwPmQpIi0iZF0kPiQvOQ=="))
         //console.log(auth.createSignedJWT("myob_3pm", "Clark Kent", "ADMINISTRATOR", "In00KTwvWzA1JC00Zls5O2AzPTAkOSsuPy8oI1xcPSg8OWImXXw8QDlkNyMjKmYoPDg0KSklM2AwKC5hIjojJjxeL2A5PVxeXnw3NDw8ZmYhZi80KTEpIj0tYlw9NHx8JTIrMyM5Zl8kPC5mOCIofmI8YXw6Mjp7IjdmKWYwJSJhJV4jLHsrYTQ8YipbMWJfLVtiOyQlOlwoez8mLCVbPTkkLkAlMy8+KlwkPC0hKH41JC5gLF8/YDUjNzt9IVshZCQmOzA6OztmXTEsZV8uYytAXT9bZC0rQH49N10/Pl8oMGIqQGNAOjQpOTwvIj9dK1wwPmQpIi0iZF0kPiQvOQ=="));
         /*const signedToken = auth.createSignedJWT("myob-3pm", "AJ", "ADMINISTRATOR", "In00KTwvWzA1JC00Zls5O2AzPTAkOSsuPy8oI1xcPSg8OWImXXw8QDlkNyMjKmYoPDg0KSklM2AwKC5hIjojJjxeL2A5PVxeXnw3NDw8ZmYhZi80KTEpIj0tYlw9NHx8JTIrMyM5Zl8kPC5mOCIofmI8YXw6Mjp7IjdmKWYwJSJhJV4jLHsrYTQ8YipbMWJfLVtiOyQlOlwoez8mLCVbPTkkLkAlMy8+KlwkPC0hKH41JC5gLF8/YDUjNzt9IVshZCQmOzA6OztmXTEsZV8uYytAXT9bZC0rQH49N10/Pl8oMGIqQGNAOjQpOTwvIj9dK1wwPmQpIi0iZF0kPiQvOQ==");
