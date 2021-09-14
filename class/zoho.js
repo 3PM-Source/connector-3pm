@@ -55,14 +55,19 @@ class Zoho {
                         }(responseType);
                         return returnResp;
                     } else {
-                        const error = await resp.json();
+                        try {
+                            const error = await resp.json();
                             if(error.hasOwnProperty("description") && error["description"].toString() === "INVALID_OAUTHTOKEN") {
                                 const newTokens = await this.refreshTokens(dbClient);
                                 options["headers"]["Authorization"] = `Zoho-oauthtoken ${newTokens["access_token"]}`;
                                 args["retry"]--;
                                 return this.zohoRequest(url, options, responseType, { retry: args["retry"] });
+                            } else {
+                                return (JSON.stringify(error));
                             }
-                        return error;
+                        } catch (error) {
+                            return (JSON.stringify({ code: resp.status, error: resp.statusText }));
+                        }
                     }
             }).catch((error) => {
                 return error.message;
