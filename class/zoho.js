@@ -36,7 +36,6 @@ class Zoho {
                 const authorize = await this.getAuthorizationCode();
                 return authorize;
             }
-            console.log("REQUEST URL=", url);
             const request = await fetch(url, options).then(async (resp) => {
                     if(resp.ok) {
                         const returnResp = async function(type) { 
@@ -246,7 +245,7 @@ class Zoho {
             if( !appLinkName || !reportLinkName || typeof appLinkName !== "string" || typeof reportLinkName !== "string" || 
                 (recordId && typeof recordId !== "string") || !dbClient
             ) {
-                throw new Error("Invalid arguments or argument types");
+                throw new Error("Invalid arguments or argument types. Check type of app link name, report link names and options and then try again.");
             }
                 const tokens = (await dbClient.getOAuth2Token("zoho_oauth2_tokens"))["oauth_token"]; //JSON.parse(await openFile(this.tokensPath));
                 from = parseInt(from);
@@ -338,7 +337,7 @@ class Zoho {
             || !Array.isArray(includeFields) && (includeTasks !== true && includeTasks !== false) 
             || !dbClient
         ) {
-            throw new Error("Invalid arguments or argument types");
+            throw new Error("Invalid arguments or argument types. Check type of payload, app link name, form link names and options and then try again.");
         }
         let batchPayload = [];
             //if(payload.length > 200) {
@@ -398,6 +397,8 @@ class Zoho {
                             for(let y = 0; y < rows[x]["value"]["result"].length; y++) {
                                 temp.push(rows[x]["value"]["result"][y]);
                             }
+                        } else {
+                            temp.push(rows[x]["value"]);
                         }
                     }
                 }
@@ -415,7 +416,7 @@ class Zoho {
         || typeof reportLinkName !== "string" || !Array.isArray(includeFields) && (includeTasks !== true && includeTasks !== false) ||
         (criteria && typeof criteria !== "string") || !dbClient
         ) {
-            throw new Error("Invalid arguments or argument types");
+            throw new Error("Invalid arguments or argument types. Check type of payload, app link name, report link names and options and then try again.");
         }
         if(criteria && recordId) {
             throw new Error("You cannot update multiple records and record by id at the same time");
@@ -445,7 +446,6 @@ class Zoho {
                         method: "PATCH",
                         body: JSON.stringify(data)
                     }, "json", dbClient);
-                    console.log("RAW RESPONSE =", temp);
                         if(!temp.hasOwnProperty("more_records")) {
                             if(!temp.hasOwnProperty("result")) {
                                 return temp["data"];
@@ -480,7 +480,7 @@ class Zoho {
         if( !appLinkName || !reportLinkName || typeof appLinkName !== "string" || typeof reportLinkName !== "string" || 
         (includeTasks !== true && includeTasks !== false) || (criteria && typeof criteria !== "string") || !dbClient
         ) {
-            throw new Error("Invalid arguments or argument types");
+            throw new Error("Invalid arguments or argument types. Check type of payload, app link name, report link names and options and then try again.");
         }
         if(criteria && recordId) {
             throw new Error("You cannot delete multiple records and record by id at the same time");

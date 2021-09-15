@@ -191,7 +191,7 @@ router.get("/api/invoices/:companyuri/:invoiceType?/:id?", async (req, res, next
             res.status(200).send(invoices);
             return;
         } catch (error) {
-            res.status(503).send(error.message);
+            res.status(500).send(error.message);
             console.log(error);
             return;
         }
@@ -212,7 +212,7 @@ router.put("/api/invoices/:companyuri/:invoiceType/:id", async (req, res, next) 
             res.status(200).send(invoice);
             return;
         } catch (error) {
-            res.status(503).send(error.message);
+            res.status(500).send(error.message);
             console.log(error);
             return;
         }
@@ -233,7 +233,7 @@ router.post("/api/invoices/:companyuri/:invoiceType", async (req, res, next) => 
             res.status(200).send(invoice);
             return;
         } catch (error) {
-            res.status(503).send(error.message);
+            res.status(500).send(error.message);
             console.log(error);
             return;
         }
@@ -254,7 +254,7 @@ router.delete("/api/invoices/:companyuri/:invoiceType/:id", async (req, res, nex
             res.status(200).send(invoice);
             return;
         } catch (error) {
-            res.status(503).send(error.message);
+            res.status(500).send(error.message);
             console.log(error);
             return;
         }

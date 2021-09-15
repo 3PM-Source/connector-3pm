@@ -50,7 +50,7 @@ router.get("/api/:applink/:reportlink/:options?", async (req, res, next) => {
             res.status(200).send(records);
             return;
         } catch (error) {
-            res.status(503).send(error.message);
+            res.status(500).send(error.message);
             return;
         }
     } 
@@ -66,7 +66,7 @@ router.post("/api/:applink/:formlink/:options?", async (req, res, next) => {
             res.status(200).send(records);
             return;
         } catch (error) {
-            res.status(503).send(error.message);
+            res.status(500).send(JSON.stringify({error: error.message}));
             return;
         }
     } 
@@ -82,7 +82,7 @@ router.put("/api/:applink/:reportlink/:options?", async (req, res, next) => {
             res.status(200).send(records);
             return;
         } catch (error) {
-            res.status(503).send(error.message);
+            res.status(500).send(error.message);
             return;
         }
     } 
@@ -98,7 +98,7 @@ router.delete("/api/:applink/:reportlink/:options?", async (req, res, next) => {
             res.status(200).send({ msg: records });
             return;
         } catch (error) {
-            res.status(503).send(error.message);
+            res.status(500).send(error.message);
             return;
         }
     } 
