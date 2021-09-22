@@ -75,7 +75,7 @@ class Zoho {
     }
 
     async getAuthorizationCode() {
-        const url = await fetch(url, options).then(async (resp) => {
+        const url = await fetch(`https://accounts.zoho.com/oauth/v2/auth?response_type=code&client_id=${this.clientId}&scope=${this.scope}&redirect_uri=${this.redirectUri}&access_type=${this.accessType}&prompt=${this.prompt}`, options).then(async (resp) => {
                 if(resp.ok) {
                     return resp.url;
                 } else {
