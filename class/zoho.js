@@ -601,9 +601,9 @@ async function test() {
         console.log(await zoho.createRecords("api-sandbox", "Test_Invoice", dummyBatch, postgresClient, { fields: ["Company_Name"], tasks: false })); 
         console.timeEnd("Create dummy records");
         */
-        console.time("Fetching records took");
-        const massRecords = await zoho.getRecords("api-sandbox", "All_Test_Invoices", postgresClient/*, { recordId: "3598851000009063030" }*/ );
-        console.timeEnd("Fetching records took");
+        /*console.time("Fetching records took");
+        const massRecords = await zoho.getRecords("api-sandbox", "All_Test_Invoices", postgresClient/*, { recordId: "3598851000009063030" } );*/
+        /*console.timeEnd("Fetching records took");
         console.log(massRecords);
        /*
         console.time("Time to update records");
@@ -623,6 +623,17 @@ async function test() {
         console.log("Batch 3 length", createRecords[2][0]["data"].length);
         console.log("Batch 4 length", createRecords[3][0]["data"].length);
         console.log("Batch 5 length", createRecords[4][0]["data"].length);*/
+        const requestAuth = await fetch("https://accounts.zoho.com.au/oauth/v2/auth?response_type=code&client_id=1000.JP160SC1CNJ5IIE0QF12HDAYDF8JEV&scope=ZohoCreator.report.READ&redirect_uri=https://6316-2406-e003-10b1-ad01-158b-e90-d8d7-4b.ngrok.io&access_type=offline&prompt=consent").then((resp) => { return resp; });
+        var code = "1000.469faef48d7f17494e0f93fb6fec2f75.618b12ac757599814570a0d9812b5915";
+        const requestTokens = await fetch(`https://accounts.zoho.com.au/oauth/v2/token?grant_type=authorization_code&client_id=1000.JP160SC1CNJ5IIE0QF12HDAYDF8JEV&client_secret=2085b2b2dd18d07685550ec535cb62562a966f6967&redirect_uri=https://6316-2406-e003-10b1-ad01-158b-e90-d8d7-4b.ngrok.io&code=${code}`, {
+            method: "POST",
+            headers: {
+                "content-type":"application/json"
+            }
+        }).then(async (resp) => { let json = await resp.json(); return json; });
+        
+        //console.log(requestAuth);
+        console.log(requestTokens);
     } catch (error) {
         console.log("Error occurred", error);
     }
