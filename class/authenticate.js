@@ -29,25 +29,23 @@ class Authenticator {
         this.keyLength = 64;
         this.iterations = 50000;
         this.digest = "sha512";
-        const connectionStr = process.env.DATABASE_URL;
         this.pool = process.env.MODE === "PRODUCTION" ? 
-            new Pool({ connectionStr })
-        /*new Pool({
-            user: dbUser,
-            host: host,
-            database: dbName,
-            password: pass,
-            port: port,
-            ssl: {
-                rejectUnauthorized: false
-            }
-        })*/ : new Pool({
-            user: dbUser,
-            host: host,
-            database: dbName,
-            password: pass,
-            port: port
-        });
+            new Pool({
+                user: dbUser,
+                host: host,
+                database: dbName,
+                password: pass,
+                port: port,
+                ssl: {
+                    rejectUnauthorized: false
+                }
+            }) : new Pool({
+                user: dbUser,
+                host: host,
+                database: dbName,
+                password: pass,
+                port: port
+            });
     }
 
     async hashPassword(email, salt, password) {
