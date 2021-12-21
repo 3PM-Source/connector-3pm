@@ -56,7 +56,9 @@ class Zoho {
                     } else {
                         try {
                             const error = await resp.json();
-                            if(error.hasOwnProperty("description") && error["description"].toString() === "INVALID_OAUTHTOKEN") {
+                            console.log("ERROR OCCURRED", error);
+                            if(error.hasOwnProperty("code") && error.code === 1030) {
+                            //if(error.hasOwnProperty("description") && error["description"].toString() === "INVALID_OAUTHTOKEN") {
                                 const newTokens = await this.refreshTokens(dbClient);
                                 options["headers"]["Authorization"] = `Zoho-oauthtoken ${newTokens["access_token"]}`;
                                 args["retry"]--;
@@ -543,5 +545,22 @@ class Zoho {
         });
     }
 }
+
+// async function test() {
+//     require("dotenv").config();
+//     const Authenticator = require("./authenticate.js");
+//     const auth = new Authenticator(
+//         "ambuczyocpbesy", 
+//         "ec2-35-168-145-180.compute-1.amazonaws.com",
+//         "dbo3f565rajakj",
+//         "eae29f596d3e768f6ba388ea51c7a8b61411d96a764681b31790e98eeacaf0e6",
+//         5432
+//     );
+
+//     const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, process.env.redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
+//     console.log(await zoho.refreshTokens(auth));
+// }
+
+// test();
 
 module.exports = Zoho;

@@ -765,11 +765,19 @@ async function test() {
             database = "connect3pm",
             password = "thisIs3pm2021",
             port = 5432;
-        const auth = new Authenticator(user, host, database, password, port);
-        const secret = await auth.generateBearerToken(128);
+        const auth = new Authenticator(
+            "ambuczyocpbesy", 
+            "ec2-35-168-145-180.compute-1.amazonaws.com",
+            "dbo3f565rajakj",
+            "eae29f596d3e768f6ba388ea51c7a8b61411d96a764681b31790e98eeacaf0e6",
+            5432
+        );
+        console.log(await auth.getOAuth2Token("myob_oauth2_tokens"));
+        return;
+        //const secret = await auth.generateBearerToken(128);
         //console.log(await auth.createUser("Keith Anderson", "STANDARD", "keith@3pm2021", "keith.anderson@3pm.nz"));
         //console.log(await auth.createUser("Naveen Desilva", "STANDARD", "naveen@3pm2021", "naveen.desilva@3pm.nz"));
-        console.log(await auth.saveUserToken(secret, "35b0f2e82593d981708e1a722655e021"));
+        //console.log(await auth.saveUserToken(secret, "35b0f2e82593d981708e1a722655e021"));
 
         //const createKey = await auth.saveUserToken(secret, await auth.getUserById());
 
