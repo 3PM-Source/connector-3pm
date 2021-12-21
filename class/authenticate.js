@@ -29,7 +29,10 @@ class Authenticator {
         this.keyLength = 64;
         this.iterations = 50000;
         this.digest = "sha512";
-        this.pool = process.env.MODE === "PRODUCTION" ? new Pool({
+        const connectionStr = process.env.DATABASE_URL;
+        this.pool = process.env.MODE === "PRODUCTION" ? 
+            new Pool({ connectionStr })
+        /*new Pool({
             user: dbUser,
             host: host,
             database: dbName,
@@ -38,7 +41,7 @@ class Authenticator {
             ssl: {
                 rejectUnauthorized: false
             }
-        }) : new Pool({
+        })*/ : new Pool({
             user: dbUser,
             host: host,
             database: dbName,
