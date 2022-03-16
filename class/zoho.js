@@ -7,6 +7,7 @@ const fetch = require("node-fetch");
 //const { saveFile, openFile } = require("../helpers/FileOps");
 const { performance } = require("perf_hooks");
 const util = require("util");
+const FormData = require("form-data");
 
 class Zoho {
     constructor(clientId, clientSecret, scope, redirectUri, baseUri, accountOwnerName, optionalArgs = { accessType: "offline", prompt: "consent" }) {
@@ -547,7 +548,6 @@ class Zoho {
      * @param {String} fieldType // Can be FILE (Default) OR IMAGE, maximum of 50 MB for FILE and 10 MB for IMAGE
      */
      async uploadFile(dbClient, appLinkName, reportLink, fieldName, recordId, file, fileName, type = "PATH", fieldType = "FILE") {
-        const FormData = require("form-data");
         if (type.toUpperCase() === "PATH") {
             file = await fetch(file)
             .then((resp) => {
