@@ -547,6 +547,7 @@ class Zoho {
      * @param {String} fieldType // Can be FILE (Default) OR IMAGE, maximum of 50 MB for FILE and 10 MB for IMAGE
      */
      async uploadFile(dbClient, appLinkName, reportLink, fieldName, recordId, file, fileName, type = "PATH", fieldType = "FILE") {
+        const FormData = require("form-data");
         if (type.toUpperCase() === "PATH") {
             file = await fetch(file)
             .then((resp) => {
