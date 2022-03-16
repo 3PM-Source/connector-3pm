@@ -537,6 +537,43 @@ class Zoho {
         return recordsDeleted;
     }
 
+    /**
+     * @param {String} reportLink // The report link string from Zoho Creator
+     * @param {String} fieldName // The file field's link string from Zoho Creator
+     * @param {String} recordId // Zoho Creator Row Id 
+     * @param {String} file // The file data, based on type, this can either be a buffer string or an absolute path to the file
+     * @param {String} fileName // The name of the uploaded file. Keep as short as possible. Zoho Creator has a known issue with long file names
+     * @param {String} type // Can be either BUFFER or PATH (Default)
+     * @param {String} fieldType // Can be FILE (Default) OR IMAGE, maximum of 50 MB for FILE and 10 MB for IMAGE
+     */
+     async uploadFile(dbClient, appLinkName, reportLink, fieldName, recordId, file, fileName, type = "PATH", fieldType = "FILE") {
+        if (type.toUpperCase() === "PATH") {
+            file = await fetch(file)
+            .then((resp) => {
+                if (resp.ok) {
+                    return resp.buffer();
+                } else {
+                    throw JSON.stringify({ error: resp.statusText, code: resp.status });
+                }
+            }).catch((error) => {
+                throw new Error(error);
+            });
+        }
+
+        const form = fieldType === "FILE" ? new FormData({ maxDataSize: 50000000 }) : new FormData({ maxDataSize: 10000000 });
+        form.append("file", file, { filename: fileName });
+        const tokens = (await dbClient.getOAuth2Token("zoho_oauth2_tokens"))["oauth_token"];
+
+        return this.CallZoho(`${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLink}/${recordId}/${fieldName}/upload`,
+        {
+            headers: { ...form.getHeaders(), Authorization: `Zoho-oauthtoken ${tokens.access_token}` },
+            method: "POST",
+            body: form.getBuffer()
+        },
+        "json",
+        2);
+    }
+
     sleep(ms) {
         return new Promise((resolve) => {
             setTimeout(function(){
