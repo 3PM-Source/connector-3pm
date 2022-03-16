@@ -139,7 +139,7 @@ router.post("/api/:applink/:reportlink/:fieldlinkname/:recordid/:filename/:type/
 
             return;
         } catch (error) {
-            res.status(500).send(error.message);
+            console.log(error.stack);
             return;
         }
     } 
