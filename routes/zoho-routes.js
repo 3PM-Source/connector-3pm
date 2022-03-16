@@ -104,7 +104,7 @@ router.delete("/api/:applink/:reportlink/:options?", async (req, res, next) => {
     } 
 });
 
-router.post("/api/:applink/:reportlink/:fieldlinkname/:recordid/:filename/:type:/:fieldtype", async function (req, res, next) {
+router.post("/api/:applink/:reportlink/:fieldlinkname/:recordid/:filename/:type/:fieldtype", async function (req, res, next) {
     if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
         res.status(403).send("Forbidden");
         return;
