@@ -564,8 +564,10 @@ class Zoho {
         console.log(typeof file);
         console.log("File looks like", file);
 
+        const fileBuffer = file.hasOwnProperty("data") ? file.data : file;
+
         const form = fieldType === "FILE" ? new FormData({ maxDataSize: 50000000 }) : new FormData({ maxDataSize: 10000000 });
-        form.append("file", file, { filename: fileName });
+        form.append("file", fileBuffer, { filename: fileName });
         const tokens = (await dbClient.getOAuth2Token("zoho_oauth2_tokens"))["oauth_token"];
 
         return this.zohoRequest(`${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLink}/${recordId}/${fieldName}/upload`,
