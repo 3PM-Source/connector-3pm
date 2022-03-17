@@ -560,6 +560,7 @@ class Zoho {
                 throw new Error(error);
             });
             console.log("File looks like", file);
+            console.log("Buffer as base64 string", file.toString("base64"));
         }
 
         const form = fieldType === "FILE" ? new FormData({ maxDataSize: 50000000 }) : new FormData({ maxDataSize: 10000000 });
