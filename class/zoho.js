@@ -564,7 +564,7 @@ class Zoho {
         console.log(typeof file);
         console.log("File looks like", file);
 
-        const fileBuffer = file.hasOwnProperty("data") ? file.data : file;
+        const fileBuffer = file.hasOwnProperty("data") ? Buffer.from(file.data) : file;
 
         const form = fieldType === "FILE" ? new FormData({ maxDataSize: 50000000 }) : new FormData({ maxDataSize: 10000000 });
         form.append("file", fileBuffer, { filename: fileName });
