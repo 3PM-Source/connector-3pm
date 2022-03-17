@@ -565,7 +565,7 @@ class Zoho {
         form.append("file", file, { filename: fileName });
         const tokens = (await dbClient.getOAuth2Token("zoho_oauth2_tokens"))["oauth_token"];
 
-        return this.CallZoho(`${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLink}/${recordId}/${fieldName}/upload`,
+        return this.zohoRequest(`${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLink}/${recordId}/${fieldName}/upload`,
         {
             headers: { ...form.getHeaders(), Authorization: `Zoho-oauthtoken ${tokens.access_token}` },
             method: "POST",
