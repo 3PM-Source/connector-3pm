@@ -559,6 +559,7 @@ class Zoho {
             }).catch((error) => {
                 throw new Error(error);
             });
+            console.log("File looks like", file);
         }
 
         const form = fieldType === "FILE" ? new FormData({ maxDataSize: 50000000 }) : new FormData({ maxDataSize: 10000000 });
