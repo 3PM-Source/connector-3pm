@@ -123,8 +123,8 @@ router.post("/api/:applink/:reportlink/:fieldlinkname/:recordid/:filename/:type/
 
             const { UrlOrBuffer } = req.body.file;
 
-            console.log("Attempting to upload file to Zoho Creator",
-                await zoho.uploadFile(
+            console.log("Attempting to upload file to Zoho Creator");
+            const uploaded = await zoho.uploadFile(
                     auth, 
                     applink, 
                     reportlink, 
@@ -134,9 +134,43 @@ router.post("/api/:applink/:reportlink/:fieldlinkname/:recordid/:filename/:type/
                     filename,
                     type,
                     fieldtype
-                )
-            );
+                );
 
+            console.log("File uploaded", uploaded);
+            return;
+        } catch (error) {
+            console.log(error.stack);
+            return;
+        }
+    } 
+});
+
+/**
+ * This route returns a JSON object containing the Filename and Buffer. The Buffer can be downloaded
+ * and saved as a file.
+ */
+router.get("/api/:applink/:reportlink/:fieldlinkname/:recordid/download", async function (req, res, next) {
+    if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
+        res.status(404).send("Not Found");
+        return;
+    } else {
+        try {
+            const {
+                applink,
+                reportlink,
+                fieldlinkname,
+                recordid
+            } = req.params;
+
+            const file = await zoho.downloadFile(
+                auth, 
+                applink, 
+                reportlink, 
+                fieldlinkname, 
+                recordid
+            );
+            res.status(200).send(file);
+            console.log("The Downloaded File", file);
             return;
         } catch (error) {
             console.log(error.stack);

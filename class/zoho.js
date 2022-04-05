@@ -49,6 +49,8 @@ class Zoho {
                                     return buffer;
                                 case "URL":
                                     return resp.url;
+                                case "TEXT":
+                                    return resp.text();
                                 default:
                                     throw new Error("Response type not recognized!");
                             }
@@ -539,7 +541,9 @@ class Zoho {
     }
 
     /**
+     * @param {Object} dbClient // The database client for postgres
      * @param {String} reportLink // The report link string from Zoho Creator
+     * @param {String} appLinkName // The link name of the Zoho Creator app
      * @param {String} fieldName // The file field's link string from Zoho Creator
      * @param {String} recordId // Zoho Creator Row Id 
      * @param {String} file // The file data, based on type, this can either be a buffer string or an absolute path to the file
@@ -547,7 +551,7 @@ class Zoho {
      * @param {String} type // Can be either BUFFER or PATH (Default)
      * @param {String} fieldType // Can be FILE (Default) OR IMAGE, maximum of 50 MB for FILE and 10 MB for IMAGE
      */
-     async uploadFile(dbClient, appLinkName, reportLink, fieldName, recordId, file, fileName, type = "PATH", fieldType = "FILE") {
+    async uploadFile(dbClient, appLinkName, reportLink, fieldName, recordId, file, fileName, type = "PATH", fieldType = "FILE") {
         if (type.toUpperCase() === "PATH") {
             file = await fetch(file)
             .then((resp) => {
@@ -581,6 +585,39 @@ class Zoho {
         );
     }
 
+    /**
+     * 
+     * @param {Object} dbClient // The database client for postgres 
+     * @param {String} appLinkName // The link name of the Zoho Creator app
+     * @param {String} reportLink // The report link string from Zoho Creator 
+     * @param {String} fieldName // The file field's link string from Zoho Creator
+     * @param {String} recordId // Zoho Creator Row Id 
+     * @returns {Object} // Containing File's name and buffer
+     */
+    async downloadFile(dbClient, appLinkName, reportLink, fieldName, recordId) {
+        const tokens = (await dbClient.getOAuth2Token("zoho_oauth2_tokens"))["oauth_token"];
+
+        return fetch(
+            `${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLink}/${recordId}/${fieldName}/download`,
+            {
+                headers: {
+                    Authorization: `Zoho-oauthtoken ${tokens.access_token}`
+                },
+                method: "GET"
+            }).then(async (resp) => {
+                if (resp.ok) {
+                    const file = resp.headers.get("content-disposition").split("filename=")[1].split("\"").join("").split("/").join("");
+                    const buffer = await resp.buffer();
+                    return  {
+                        Filename: file,
+                        Buffer: buffer
+                    };
+                } else {
+                    throw new Error(JSON.stringify({ error: "Failed to get file, please try again later. Details" + resp.statusText, status: resp.status }));
+                }
+            });
+    }
+
     sleep(ms) {
         return new Promise((resolve) => {
             setTimeout(function(){
@@ -590,20 +627,41 @@ class Zoho {
     }
 }
 
-// async function test() {
-//     require("dotenv").config();
-//     const Authenticator = require("./authenticate.js");
-//     const auth = new Authenticator(
-//         "ambuczyocpbesy", 
-//         "ec2-35-168-145-180.compute-1.amazonaws.com",
-//         "dbo3f565rajakj",
-//         "eae29f596d3e768f6ba388ea51c7a8b61411d96a764681b31790e98eeacaf0e6",
-//         5432
-//     );
+async function test() {
+    require("dotenv").config({ path: "../.env" });
+    const Authenticator = require("./authenticate.js");
+    const auth = new Authenticator(
+        "", 
+        "",
+        "",
+        "",
+        0  
+    );
 
-//     const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, process.env.redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
-//     console.log(await zoho.refreshTokens(auth));
-// }
+    const zoho = new Zoho(
+        process.env.clientId_zoho, 
+        process.env.clientSecret_zoho, 
+        process.env.scope_zoho, 
+        process.env.redirectUrl_zoho, 
+        process.env.baseUrl_zoho, 
+        process.env.accountOwnerName_zoho
+    );
+    try {
+        const fileBuffer = await zoho.downloadFile(
+            auth, 
+            "api-sandbox", 
+            "All_Test_Invoices",
+            "File_upload",
+            "3598851000025173440"
+        );
+
+        console.log(fileBuffer);
+        const fs = require("fs");
+        console.log("Saving file", fs.writeFileSync(fileBuffer.Filename, fileBuffer.Buffer, null));
+    } catch (error) {
+        console.log(error.message);
+    }
+}
 
 // test();
 
