@@ -19,7 +19,7 @@ router.get("/api/tokens", async (req, res, next) => {
 });
 
 /*****************************************************************************************************************************
-    META API
+    META APIs
 /***************************************************************************************************************************** */
 router.get("/api/applications/:name?", async (req, res, next) => {
     if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
