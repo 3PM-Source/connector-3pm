@@ -32,7 +32,6 @@ router.get("/api/applications/:name?", async (req, res, next) => {
             return;
         } catch (error) {
             res.status(503).send(error.message);
-            console.log(error.message);
             return;
         }
     } 
