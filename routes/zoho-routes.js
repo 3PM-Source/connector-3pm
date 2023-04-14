@@ -22,7 +22,19 @@ router.get("/api/tokens", async (req, res, next) => {
     META APIs
 /***************************************************************************************************************************** */
 router.get("/api/applications/:name?", async (req, res, next) => {
-    if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
+    let authorization = req["headers"]["authorization"];
+    
+    try
+    {
+        authorization = authorization.split(" ")[1];
+    }
+    catch (error)
+    {
+        console.log("Failed to split authorization header", req["headers"]["authorization"]);
+        return res.status(403).send("Forbidden");
+    }
+
+    if(!await auth.verifySignature(req["headers"]["tokenid"], authorization, req["method"], `${decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
         res.status(403).send("Forbidden");
         return;
     } else {
@@ -42,15 +54,27 @@ router.get("/api/applications/:name?", async (req, res, next) => {
     DATA APIs
 /***************************************************************************************************************************** */
 router.get("/api/:applink/:reportlink/:options?", async (req, res, next) => {
+    let authorization = req["headers"]["authorization"];
+    
+    try
+    {
+        authorization = authorization.split(" ")[1];
+    }
+    catch (error)
+    {
+        console.log("Failed to split authorization header", req["headers"]["authorization"]);
+        return res.status(403).send("Forbidden");
+    }
+
     if(!await auth.verifySignature(
         req["headers"]["tokenid"], 
-        req["headers"]["authorization"].split(" ")[1], 
+        authorization, 
         req["method"], 
         `${zohoApiUrl + req["url"]}`, 
         req["headers"]["timestamp"]) && 
         !await auth.verifySignature(
             req["headers"]["tokenid"], 
-            req["headers"]["authorization"].split(" ")[1], 
+            authorization, 
             req["method"], 
             `${decodeURIComponent(zohoApiUrl + req["url"])}`, 
             req["headers"]["timestamp"])
@@ -70,7 +94,19 @@ router.get("/api/:applink/:reportlink/:options?", async (req, res, next) => {
 });
 
 router.post("/api/:applink/:formlink/:options?", async (req, res, next) => {
-    if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
+    let authorization = req["headers"]["authorization"];
+
+    try
+    {
+        authorization = authorization.split(" ")[1];
+    }
+    catch (error)
+    {
+        console.log("Failed to split authorization header", req["headers"]["authorization"]);
+        return res.status(403).send("Forbidden");
+    }
+
+    if(!await auth.verifySignature(req["headers"]["tokenid"], authorization, req["method"], `${decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
         res.status(403).send("Forbidden");
         return;
     } else {
@@ -86,7 +122,19 @@ router.post("/api/:applink/:formlink/:options?", async (req, res, next) => {
 });
 
 router.put("/api/:applink/:reportlink/:options?", async (req, res, next) => {
-    if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
+    let authorization = req["headers"]["authorization"];
+
+    try
+    {
+        authorization = authorization.split(" ")[1];
+    }
+    catch (error)
+    {
+        console.log("Failed to split authorization header", req["headers"]["authorization"]);
+        return res.status(403).send("Forbidden");
+    }
+    
+    if(!await auth.verifySignature(req["headers"]["tokenid"], authorization, req["method"], `${decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
         res.status(403).send("Forbidden");
         return;
     } else {
@@ -102,7 +150,19 @@ router.put("/api/:applink/:reportlink/:options?", async (req, res, next) => {
 });
 
 router.delete("/api/:applink/:reportlink/:options?", async (req, res, next) => {
-    if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
+    let authorization = req["headers"]["authorization"];
+
+    try
+    {
+        authorization = authorization.split(" ")[1];
+    }
+    catch (error)
+    {
+        console.log("Failed to split authorization header", req["headers"]["authorization"]);
+        return res.status(403).send("Forbidden");
+    }
+
+    if(!await auth.verifySignature(req["headers"]["tokenid"], authorization, req["method"], `${decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
         res.status(403).send("Forbidden");
         return;
     } else {
@@ -118,7 +178,19 @@ router.delete("/api/:applink/:reportlink/:options?", async (req, res, next) => {
 });
 
 router.post("/api/:applink/:reportlink/:fieldlinkname/:recordid/:filename/:type/:fieldtype", async function (req, res, next) {
-    if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
+    let authorization = req["headers"]["authorization"];
+
+    try
+    {
+        authorization = authorization.split(" ")[1];
+    }
+    catch (error)
+    {
+        console.log("Failed to split authorization header", req["headers"]["authorization"]);
+        return res.status(403).send("Forbidden");
+    }
+
+    if(!await auth.verifySignature(req["headers"]["tokenid"], authorization, req["method"], `${decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
         res.status(403).send("Forbidden");
         return;
     } else {
@@ -163,7 +235,19 @@ router.post("/api/:applink/:reportlink/:fieldlinkname/:recordid/:filename/:type/
  * and saved as a file.
  */
 router.get("/api/:applink/:reportlink/:fieldlinkname/:recordid/download", async function (req, res, next) {
-    if(!await auth.verifySignature(req["headers"]["tokenid"], req["headers"]["authorization"].split(" ")[1], req["method"], `${decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
+    let authorization = req["headers"]["authorization"];
+
+    try
+    {
+        authorization = authorization.split(" ")[1];
+    }
+    catch (error)
+    {
+        console.log("Failed to split authorization header", req["headers"]["authorization"]);
+        return res.status(403).send("Forbidden");
+    }
+
+    if(!await auth.verifySignature(req["headers"]["tokenid"], authorization, req["method"], `${decodeURIComponent(zohoApiUrl + req["url"])}`, req["headers"]["timestamp"])) {
         res.status(404).send("Not Found");
         return;
     } else {
