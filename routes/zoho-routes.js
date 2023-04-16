@@ -111,8 +111,21 @@ router.post("/api/:applink/:formlink/:options?", async (req, res, next) => {
         return;
     } else {
         try {
+            let ResSent = false;
+
+            if (Array.isArray(req.body) && req.body.length > 200)
+            {
+                res.status(200).send("OK - Long job, using background process, please check Zoho Creator App's front end for record creation success.");
+                ResSent = true;
+            }
+
             const records = await zoho.createRecords(req.params.applink, req.params.formlink, req.body, auth, (req.params.options ? JSON.parse(decodeURIComponent(req.params.options)) : undefined) );
-            res.status(200).send(records);
+
+            if (!ResSent)
+            {
+                res.status(200).send(records);
+            }
+
             return;
         } catch (error) {
             res.status(500).send(JSON.stringify({error: error.message}));
@@ -139,8 +152,21 @@ router.put("/api/:applink/:reportlink/:options?", async (req, res, next) => {
         return;
     } else {
         try {
+
+            let ResSent = false;
+
+            if (Array.isArray(req.body) && req.body.length > 200)
+            {
+                res.status(200).send("OK - Long job, using background process, please check Zoho Creator App's front end for record creation success.");
+                ResSent = true;
+            }
+
             const records = await zoho.updateRecords(req.params.applink, req.params.reportlink, req.body, auth, (req.params.options ? JSON.parse(decodeURIComponent(req.params.options)) : undefined) );
-            res.status(200).send(records);
+            
+            if (!ResSent)
+            {
+                res.status(200).send(records);
+            }
             return;
         } catch (error) {
             res.status(500).send(error.message);
