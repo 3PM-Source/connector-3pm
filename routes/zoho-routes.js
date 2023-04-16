@@ -115,7 +115,7 @@ router.post("/api/:applink/:formlink/:options?", async (req, res, next) => {
 
             if (Array.isArray(req.body) && req.body.length > 200)
             {
-                res.status(200).send("OK - Long job, using background process, please check Zoho Creator App's front end for record creation success.");
+                res.status(200).send({ Message: "OK - Long job, using background process, please check Zoho Creator App's front end for record creation success." });
                 ResSent = true;
             }
 
@@ -157,7 +157,7 @@ router.put("/api/:applink/:reportlink/:options?", async (req, res, next) => {
 
             if (Array.isArray(req.body) && req.body.length > 200)
             {
-                res.status(200).send("OK - Long job, using background process, please check Zoho Creator App's front end for record creation success.");
+                res.status(200).send({ Message: "OK - Long job, using background process, please check Zoho Creator App's front end for record creation success." });
                 ResSent = true;
             }
 
