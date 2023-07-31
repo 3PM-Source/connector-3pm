@@ -604,13 +604,20 @@ class Zoho {
      */
     async downloadFile(dbClient, appLinkName, reportLink, fieldName, recordId) {
         const tokens = (await dbClient.getOAuth2Token("zoho_oauth2_tokens"))["oauth_token"];
+        
+        let Headers = {
+            Authorization: `Zoho-oauthtoken ${tokens.access_token}`
+        };
+
+        if (this.Environment == "development")
+        {
+            Headers["environment"] = this.Environment;
+        }
 
         return fetch(
             `${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/report/${reportLink}/${recordId}/${fieldName}/download`,
             {
-                headers: {
-                    Authorization: `Zoho-oauthtoken ${tokens.access_token}`
-                },
+                headers: Headers,
                 method: "GET"
             }).then(async (resp) => {
                 if (resp.ok) {
