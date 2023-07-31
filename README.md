@@ -13,7 +13,7 @@ headers: {
 }
 ```
 
-### Asjad Amin -- Update to Legacy Connector 1-August-2023
+#### Asjad Amin -- Update to Legacy Connector 1-August-2023
 
 To keep up with Zoho Creator developments (Creator 6) where Creator 6 introduces
 Environments to Zoho Creator, when calling a Zoho Route, in the headers of your request
@@ -27,9 +27,8 @@ data.
 		env: "development" // OR "stage" depending on which dataset you want to interact with
 	}
 ```
-"env": 
 
-The Signature String is calculated by:
+**The Signature String is calculated by:**
 
 ***httpRequest_method***&***request_url***&***timestamp***&***secret***&***ownerId***&***tokenId***
 
