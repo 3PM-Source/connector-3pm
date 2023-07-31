@@ -55,7 +55,13 @@ router.get("/api/applications/:name?", async (req, res, next) => {
 /***************************************************************************************************************************** */
 router.get("/api/:applink/:reportlink/:options?", async (req, res, next) => {
     let authorization = req["headers"]["authorization"];
-    
+    let enviornment = req.headers.hasOwnProperty("env") ? req.headers.env : "";
+
+    if (enviornment == "development")
+    {
+        zoho.SetEnvironment(enviornment);
+    }
+
     try
     {
         authorization = authorization.split(" ")[1];
@@ -95,6 +101,12 @@ router.get("/api/:applink/:reportlink/:options?", async (req, res, next) => {
 
 router.post("/api/:applink/:formlink/:options?", async (req, res, next) => {
     let authorization = req["headers"]["authorization"];
+    let enviornment = req.headers.hasOwnProperty("env") ? req.headers.env : "";
+
+    if (enviornment == "development")
+    {
+        zoho.SetEnvironment(enviornment);
+    }
 
     try
     {
@@ -136,7 +148,13 @@ router.post("/api/:applink/:formlink/:options?", async (req, res, next) => {
 
 router.put("/api/:applink/:reportlink/:options?", async (req, res, next) => {
     let authorization = req["headers"]["authorization"];
+    let enviornment = req.headers.hasOwnProperty("env") ? req.headers.env : "";
 
+    if (enviornment == "development")
+    {
+        zoho.SetEnvironment(enviornment);
+    }
+    
     try
     {
         authorization = authorization.split(" ")[1];
@@ -177,7 +195,13 @@ router.put("/api/:applink/:reportlink/:options?", async (req, res, next) => {
 
 router.delete("/api/:applink/:reportlink/:options?", async (req, res, next) => {
     let authorization = req["headers"]["authorization"];
+    let enviornment = req.headers.hasOwnProperty("env") ? req.headers.env : "";
 
+    if (enviornment == "development")
+    {
+        zoho.SetEnvironment(enviornment);
+    }
+    
     try
     {
         authorization = authorization.split(" ")[1];
@@ -205,7 +229,13 @@ router.delete("/api/:applink/:reportlink/:options?", async (req, res, next) => {
 
 router.post("/api/:applink/:reportlink/:fieldlinkname/:recordid/:filename/:type/:fieldtype", async function (req, res, next) {
     let authorization = req["headers"]["authorization"];
+    let enviornment = req.headers.hasOwnProperty("env") ? req.headers.env : "";
 
+    if (enviornment == "development")
+    {
+        zoho.SetEnvironment(enviornment);
+    }
+    
     try
     {
         authorization = authorization.split(" ")[1];
@@ -262,7 +292,13 @@ router.post("/api/:applink/:reportlink/:fieldlinkname/:recordid/:filename/:type/
  */
 router.get("/api/:applink/:reportlink/:fieldlinkname/:recordid/download", async function (req, res, next) {
     let authorization = req["headers"]["authorization"];
+    let enviornment = req.headers.hasOwnProperty("env") ? req.headers.env : "";
 
+    if (enviornment == "development")
+    {
+        zoho.SetEnvironment(enviornment);
+    }
+    
     try
     {
         authorization = authorization.split(" ")[1];

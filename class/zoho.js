@@ -23,6 +23,11 @@ class Zoho {
         this.Environment = process.env.ZOHO_ENV || "";
     }
 
+    SetEnvironment(environment)
+    {
+        this.Environment = environment;
+    }
+
     /**
      * @description Basic function to make requests to Zoho
      * @param {String} url The api url to make the request to
