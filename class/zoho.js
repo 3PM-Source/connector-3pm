@@ -20,6 +20,7 @@ class Zoho {
         //this.tokensPath = "./tokens/tokens.json";
         this.baseUri = baseUri;
         this.accountOwnerName = accountOwnerName;
+        this.Environment = process.env.ZOHO_ENV || "";
     }
 
     /**
@@ -33,10 +34,17 @@ class Zoho {
             if(!url || typeof url !== "string" || !options || typeof options !== "object" || typeof args !== "object" || typeof responseType !== "string") {
                 throw new Error("Invalid parameters received! Expected Url, options and response type");
             }
+            
             if(options.hasOwnProperty("Authorization") && !(options["Authorization"].split(" ")[1])) {
                 const authorize = await this.getAuthorizationCode();
                 return authorize;
             }
+
+            if (this.Environment == "development" && options.hasOwnProperty("headers"))
+            {
+                options.headers["environment"] = this.Environment;
+            }
+
             const request = await fetch(url, options).then(async (resp) => {
                     if(resp.ok) {
                         const returnResp = async function(type) { 
