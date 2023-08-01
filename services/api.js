@@ -40,6 +40,6 @@ let dbUser, dbMasterPass, host, dbPort, dbName, redirectUrl_myob, redirectUrl_zo
 //const auth = new AUTHENTICATION(process.env.dbUser, process.env.host, process.env.dbName, process.env.dbMasterPass, process.env.dbPort);
 const auth = new AUTHENTICATION(dbUser, host, dbName, dbMasterPass, dbPort);
 const myob = new MYOB(process.env.clientId_myob, process.env.clientSecret_myob, redirectUrl_myob, process.env.myobServerDomain);
-const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
+// const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
 
 module.exports = { myobApiUrl, zohoApiUrl, auth, myob, zoho };
