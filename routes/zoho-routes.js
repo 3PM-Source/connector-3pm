@@ -1,6 +1,7 @@
 const myobEnv = require("dotenv");
 const router = require("express").Router();
-const  { auth, zoho, zohoApiUrl } = require("../services/api");
+const Zoho = require("../class/zoho.js");
+const  { auth, zohoApiUrl } = require("../services/api");
 myobEnv.config();
 
 /*****************************************************************************************************************************
@@ -9,6 +10,7 @@ myobEnv.config();
 router.get("/api/tokens", async (req, res, next) => {
     // Generate and save tokens
     try {
+        const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
         await zoho.generateTokens(req.url, auth);
         res.status(200).send("You are now authorized to make calls to the zoho api, you can close this window.");
     } catch (error) {
@@ -39,6 +41,7 @@ router.get("/api/applications/:name?", async (req, res, next) => {
         return;
     } else {
         try {
+            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
             const applications = await zoho.getApplications(req.params.name, auth);
             res.status(200).send(applications);
             return;
@@ -56,11 +59,6 @@ router.get("/api/applications/:name?", async (req, res, next) => {
 router.get("/api/:applink/:reportlink/:options?", async (req, res, next) => {
     let authorization = req["headers"]["authorization"];
     let enviornment = req.headers.hasOwnProperty("env") ? req.headers.env : "";
-
-    if (enviornment == "development")
-    {
-        zoho.SetEnvironment(enviornment);
-    }
 
     try
     {
@@ -89,6 +87,13 @@ router.get("/api/:applink/:reportlink/:options?", async (req, res, next) => {
         return;
     } else {
         try {
+            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
+            
+            if (enviornment == "development")
+            {
+                zoho.SetEnvironment(enviornment);
+            }
+
             const records = await zoho.getRecords(req.params.applink, req.params.reportlink, auth, (req.params.options ? JSON.parse(decodeURIComponent(req.params.options)) : undefined) );
             res.status(200).send(records);
             return;
@@ -102,11 +107,6 @@ router.get("/api/:applink/:reportlink/:options?", async (req, res, next) => {
 router.post("/api/:applink/:formlink/:options?", async (req, res, next) => {
     let authorization = req["headers"]["authorization"];
     let enviornment = req.headers.hasOwnProperty("env") ? req.headers.env : "";
-
-    if (enviornment == "development")
-    {
-        zoho.SetEnvironment(enviornment);
-    }
 
     try
     {
@@ -129,6 +129,13 @@ router.post("/api/:applink/:formlink/:options?", async (req, res, next) => {
             {
                 res.status(200).send({ Message: "OK - Long job, using background process, please check Zoho Creator App's front end for record creation success." });
                 ResSent = true;
+            }
+            
+            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
+            
+            if (enviornment == "development")
+            {
+                zoho.SetEnvironment(enviornment);
             }
 
             const records = await zoho.createRecords(req.params.applink, req.params.formlink, req.body, auth, (req.params.options ? JSON.parse(decodeURIComponent(req.params.options)) : undefined) );
@@ -150,11 +157,6 @@ router.put("/api/:applink/:reportlink/:options?", async (req, res, next) => {
     let authorization = req["headers"]["authorization"];
     let enviornment = req.headers.hasOwnProperty("env") ? req.headers.env : "";
 
-    if (enviornment == "development")
-    {
-        zoho.SetEnvironment(enviornment);
-    }
-    
     try
     {
         authorization = authorization.split(" ")[1];
@@ -178,6 +180,13 @@ router.put("/api/:applink/:reportlink/:options?", async (req, res, next) => {
                 res.status(200).send({ Message: "OK - Long job, using background process, please check Zoho Creator App's front end for record creation success." });
                 ResSent = true;
             }
+                        
+            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
+            
+            if (enviornment == "development")
+            {
+                zoho.SetEnvironment(enviornment);
+            }
 
             const records = await zoho.updateRecords(req.params.applink, req.params.reportlink, req.body, auth, (req.params.options ? JSON.parse(decodeURIComponent(req.params.options)) : undefined) );
             
@@ -197,11 +206,6 @@ router.delete("/api/:applink/:reportlink/:options?", async (req, res, next) => {
     let authorization = req["headers"]["authorization"];
     let enviornment = req.headers.hasOwnProperty("env") ? req.headers.env : "";
 
-    if (enviornment == "development")
-    {
-        zoho.SetEnvironment(enviornment);
-    }
-    
     try
     {
         authorization = authorization.split(" ")[1];
@@ -217,6 +221,14 @@ router.delete("/api/:applink/:reportlink/:options?", async (req, res, next) => {
         return;
     } else {
         try {
+                        
+            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
+            
+            if (enviornment == "development")
+            {
+                zoho.SetEnvironment(enviornment);
+            }
+
             const records = await zoho.deleteRecords(req.params.applink, req.params.reportlink, auth, (req.params.options ? JSON.parse(decodeURIComponent(req.params.options)) : undefined) );
             res.status(200).send({ msg: records });
             return;
@@ -231,11 +243,6 @@ router.post("/api/:applink/:reportlink/:fieldlinkname/:recordid/:filename/:type/
     let authorization = req["headers"]["authorization"];
     let enviornment = req.headers.hasOwnProperty("env") ? req.headers.env : "";
 
-    if (enviornment == "development")
-    {
-        zoho.SetEnvironment(enviornment);
-    }
-    
     try
     {
         authorization = authorization.split(" ")[1];
@@ -265,6 +272,14 @@ router.post("/api/:applink/:reportlink/:fieldlinkname/:recordid/:filename/:type/
             const { UrlOrBuffer } = req.body.file;
 
             console.log("Attempting to upload file to Zoho Creator");
+                        
+            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
+            
+            if (enviornment == "development")
+            {
+                zoho.SetEnvironment(enviornment);
+            }
+
             const uploaded = await zoho.uploadFile(
                     auth, 
                     applink, 
@@ -294,11 +309,6 @@ router.get("/api/:applink/:reportlink/:fieldlinkname/:recordid/download", async 
     let authorization = req["headers"]["authorization"];
     let enviornment = req.headers.hasOwnProperty("env") ? req.headers.env : "";
 
-    if (enviornment == "development")
-    {
-        zoho.SetEnvironment(enviornment);
-    }
-    
     try
     {
         authorization = authorization.split(" ")[1];
@@ -320,6 +330,13 @@ router.get("/api/:applink/:reportlink/:fieldlinkname/:recordid/download", async 
                 fieldlinkname,
                 recordid
             } = req.params;
+                        
+            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
+            
+            if (enviornment == "development")
+            {
+                zoho.SetEnvironment(enviornment);
+            }
 
             const file = await zoho.downloadFile(
                 auth, 
