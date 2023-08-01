@@ -10,7 +10,7 @@ myobEnv.config();
 router.get("/api/tokens", async (req, res, next) => {
     // Generate and save tokens
     try {
-        const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
+        const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, process.env.zohoApiUrl, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
         await zoho.generateTokens(req.url, auth);
         res.status(200).send("You are now authorized to make calls to the zoho api, you can close this window.");
     } catch (error) {
@@ -41,7 +41,7 @@ router.get("/api/applications/:name?", async (req, res, next) => {
         return;
     } else {
         try {
-            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
+            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, process.env.zohoApiUrl, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
             const applications = await zoho.getApplications(req.params.name, auth);
             res.status(200).send(applications);
             return;
@@ -87,7 +87,7 @@ router.get("/api/:applink/:reportlink/:options?", async (req, res, next) => {
         return;
     } else {
         try {
-            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
+            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, process.env.zohoApiUrl, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
             
             if (enviornment == "development")
             {
@@ -131,7 +131,7 @@ router.post("/api/:applink/:formlink/:options?", async (req, res, next) => {
                 ResSent = true;
             }
             
-            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
+            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, process.env.zohoApiUrl, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
             
             if (enviornment == "development")
             {
@@ -181,7 +181,7 @@ router.put("/api/:applink/:reportlink/:options?", async (req, res, next) => {
                 ResSent = true;
             }
                         
-            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
+            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, process.env.zohoApiUrl, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
             
             if (enviornment == "development")
             {
@@ -222,7 +222,7 @@ router.delete("/api/:applink/:reportlink/:options?", async (req, res, next) => {
     } else {
         try {
                         
-            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
+            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, process.env.zohoApiUrl, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
             
             if (enviornment == "development")
             {
@@ -273,7 +273,7 @@ router.post("/api/:applink/:reportlink/:fieldlinkname/:recordid/:filename/:type/
 
             console.log("Attempting to upload file to Zoho Creator");
                         
-            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
+            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, process.env.zohoApiUrl, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
             
             if (enviornment == "development")
             {
@@ -331,7 +331,7 @@ router.get("/api/:applink/:reportlink/:fieldlinkname/:recordid/download", async 
                 recordid
             } = req.params;
                         
-            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, redirectUrl_zoho, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
+            const zoho = new Zoho(process.env.clientId_zoho, process.env.clientSecret_zoho, process.env.scope_zoho, process.env.zohoApiUrl, process.env.baseUrl_zoho, process.env.accountOwnerName_zoho);
             
             if (enviornment == "development")
             {
