@@ -245,6 +245,23 @@ class Zoho {
         return sections;
     }
 
+    async getFields(appLinkName, formLinkName, dbClient) {
+        if(!appLinkName || !formLinkName || typeof formLinkName !== "string" || typeof appLinkName !== "string" || !dbClient) {
+            throw new Error("App Name, Form Name and database client are required");
+        }
+        const tokens = (await dbClient.getOAuth2Token("zoho_oauth2_tokens"))["oauth_token"]; //JSON.parse(await openFile(this.tokensPath));
+        const fields = (await this.zohoRequest(`${this.baseUri}/api/v2/${this.accountOwnerName}/${appLinkName}/form/${formLinkName}/fields`, { 
+            headers: {
+                Authorization: `Zoho-oauthtoken ${tokens["access_token"]}`
+            },
+            method: "GET"
+        }, "JSON", dbClient));
+            if(fields.hasOwnProperty("fields")) {
+                return fields.fields;
+            }
+        return fields;
+    }
+
     /**
      * 
      * @param {String} appLinkName 

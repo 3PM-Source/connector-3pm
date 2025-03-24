@@ -355,4 +355,68 @@ router.get("/api/:applink/:reportlink/:fieldlinkname/:recordid/download", async 
     } 
 });
 
+router.get(
+    "/api/:applink/form/:formlinkname/fields",
+    async (req, res, next) => {
+      let authorization = req["headers"]["authorization"];
+      let environment = req.headers.hasOwnProperty("env") ? req.headers.env : "";
+  
+      try {
+        authorization = authorization.split(" ")[1];
+      } catch (error) {
+        console.log(
+          "Failed to split authorization header",
+          req["headers"]["authorization"]
+        );
+        return res.status(403).send("Forbidden");
+      }
+  
+      if (
+        !(await auth.verifySignature(
+          req["headers"]["tokenid"],
+          authorization,
+          req["method"],
+          `${zohoApiUrl + req["url"]}`,
+          req["headers"]["timestamp"]
+        )) &&
+        !(await auth.verifySignature(
+          req["headers"]["tokenid"],
+          authorization,
+          req["method"],
+          `${decodeURIComponent(zohoApiUrl + req["url"])}`,
+          req["headers"]["timestamp"]
+        ))
+      ) {
+        res.status(403).send("Forbidden");
+        return;
+      } else {
+        try {
+          const zoho = new Zoho(
+            process.env.clientId_zoho,
+            process.env.clientSecret_zoho,
+            process.env.scope_zoho,
+            process.env.zohoApiUrl,
+            process.env.baseUrl_zoho,
+            process.env.accountOwnerName_zoho
+          );
+  
+          if (environment == "development") {
+            zoho.SetEnvironment(environment);
+          }
+  
+          const fields = await zoho.getFields(
+            req.params.applink,
+            req.params.formlinkname,
+            auth
+          );
+          res.status(200).send(fields);
+          return;
+        } catch (error) {
+          res.status(500).send(error.message);
+          return;
+        }
+      }
+    }
+  );
+
 module.exports = router;
